@@ -12,7 +12,11 @@
     // "forwardPorts": [],
 
     // Use 'postCreateCommand' to run commands after the container is created.
-    // "postCreateCommand": "yarn install",
+    "postCreateCommand": [
+        "npm install",
+        "npm run textMate",
+        "npm run antlr4ng"
+    ],
 
     // Configure tool-specific properties.
     "customizations": {
@@ -23,7 +27,8 @@
                 "github.copilot-chat",
                 "github.github-vscode-theme",
                 "github.vscode-github-actions",
-                "github.vscode-pull-request-github"
+                "github.vscode-pull-request-github",
+                "mike-lischke.vscode-antlr4"
             ]
         }
     },
