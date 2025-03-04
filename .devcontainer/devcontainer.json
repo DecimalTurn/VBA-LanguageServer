@@ -28,7 +28,8 @@
                 "github.github-vscode-theme",
                 "github.vscode-github-actions",
                 "github.vscode-pull-request-github",
-                "mike-lischke.vscode-antlr4"
+                "mike-lischke.vscode-antlr4",
+                "editorconfig.editorconfig"
             ]
         }
     },
