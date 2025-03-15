@@ -18,6 +18,7 @@ import './extensions/parserExtensions';
 import { Workspace } from './project/workspace';
 import { activateSemanticTokenProvider } from './capabilities/semanticTokens';
 import { activateWorkspaceFolderCapability } from './capabilities/workspaceFolder';
+import { activateIntellisense } from './capabilities/intellisense';
 
 
 class LanguageServer {
@@ -41,6 +42,7 @@ class LanguageServer {
 			const result = new ConnectionInitializeResult(this.configuration.capabilities);
 			activateWorkspaceFolderCapability(params.capabilities, result);
 			activateSemanticTokenProvider(result);
+			activateIntellisense(result);
 			return result;
 		});
 		this.connection.onInitialized(() => {
