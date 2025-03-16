@@ -13,10 +13,12 @@ export function activateIntellisense(result: InitializeResult) {
         triggerCharacters: ['.']
     };
 
+    return;
+
     // Copy the content of the types folder to the client
     // This is a simple way to provide IntelliSense for VBA code
     // The client will have to parse the files and provide IntelliSense based on the content of the files
-    const typesFolderPath = path.resolve(__dirname, '../types');
+    const typesFolderPath = path.resolve(__dirname, '../../../client/types');
     const files = fs.readdirSync(typesFolderPath);
 
     const typeFilesContent: Record<string, string> = {};
