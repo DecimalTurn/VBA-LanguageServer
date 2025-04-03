@@ -1,0 +1,17 @@
+{
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+	"features": {
+		"ghcr.io/roul/devcontainer-features/mise-java:1": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"EditorConfig.EditorConfig",
+				"mike-lischke.vscode-antlr4",
+				"RedCMD.tmlanguage-syntax-highlighter",
+				"github.vscode-github-actions"
+			]
+		}
+	},
+	"postCreateCommand": "bash ./.devcontainer/setup.sh"
+}

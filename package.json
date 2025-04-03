@@ -163,7 +163,8 @@
 		"test:textMate:snap": "vscode-tmgrammar-snap ./test/textmate/snapshot/*.??s",
 		"test:vsc:unit": "vscode-test",
 		"testsh": "sh ./scripts/e2e.sh",
-		"testps": "powershell ./scripts/e2e.ps1"
+		"testps": "powershell ./scripts/e2e.ps1",
+		"visx": "vsce package"
 	},
 	"dependencies": {
 		"antlr4ng": "^3.0.16",
