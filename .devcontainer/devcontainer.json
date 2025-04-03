@@ -1,0 +1,18 @@
+{
+	"image": "mcr.microsoft.com/devcontainers/universal:2",
+	"features": {
+		"ghcr.io/devcontainers-community/npm-features/typescript:1": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"EditorConfig.EditorConfig",
+				"mike-lischke.vscode-antlr4",
+				"RedCMD.tmlanguage-syntax-highlighter",
+				"github.vscode-github-actions"
+			]
+		}
+	},
+	//If not working properly, we might need to: chmod +x ./.devcontainer/setup.sh
+	"postCreateCommand": "./.devcontainer/setup.sh"
+}
