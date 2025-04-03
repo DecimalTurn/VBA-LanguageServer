@@ -6,7 +6,7 @@
 	"icon": "images/vba-lsp-icon.png",
 	"author": "SSlinky",
 	"license": "MIT",
-	"version": "1.5.2",
+	"version": "1.5.5-ml",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/SSlinky/VBA-LanguageServer"
@@ -135,7 +135,8 @@
 		"tmUnitTest": "vscode-tmgrammar-test ./test/textmate/**/*.vba",
 		"tmSnapTest": "vscode-tmgrammar-snap ./test/textmate/snapshot/*.??s",
 		"tmSnapUpdate": "vscode-tmgrammar-snap --updateSnapshot ./test/textmate/snapshot/*.??s",
-		"vsctest": "vscode-test"
+		"vsctest": "vscode-test",
+		"package": "vsce package"
 	},
 	"dependencies": {
 		"antlr4ng": "^3.0.14"
@@ -147,6 +148,7 @@
 		"@typescript-eslint/parser": "^8.20.0",
 		"@vscode/test-cli": "^0.0.10",
 		"@vscode/test-electron": "^2.4.1",
+		"@vscode/vsce": "^3.3.2",
 		"antlr4ng-cli": "^2.0.0",
 		"eslint": "^9.18.0",
 		"js-yaml": "^4.1.0",
