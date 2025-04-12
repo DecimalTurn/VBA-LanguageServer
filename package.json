@@ -157,6 +157,7 @@
 		"build:antlr": "antlr4ng -Dlanguage=TypeScript -visitor ./server/src/antlr/vba.g4 -o ./server/src/antlr/out/",
 		"build:antlrPre": "antlr4ng -Dlanguage=TypeScript -visitor ./server/src/antlr/vbapre.g4 -o ./server/src/antlr/out/",
 		"build:antlrFmt": "antlr4ng -Dlanguage=TypeScript -visitor ./server/src/antlr/vbafmt.g4 -o ./server/src/antlr/out/",
+		"mvantlr": "mv ./server/src/antlr/out/server/src/antlr/* ./server/src/antlr/out",
 		"tmSnapUpdate": "vscode-tmgrammar-snap --updateSnapshot ./test/textmate/snapshot/*.??s",
 		"test": "npm run build && npm-run-all -p test:*:*",
 		"test:textMate:unit": "vscode-tmgrammar-test ./test/textmate/**/*.vba",
