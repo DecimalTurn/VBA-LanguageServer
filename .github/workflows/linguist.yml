@@ -28,4 +28,4 @@ jobs:
           bundler-cache: true
 
       - name: Check grammar
-        run: ./script/add-grammar --replace ${{ github.event.repository.name }} https://github.com/${{ github.repository }}
+        run: ./script/add-grammar https://github.com/${{ github.repository }}
