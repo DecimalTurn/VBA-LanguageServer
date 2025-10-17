@@ -53,6 +53,19 @@ export function walk(dirOrUri: string, pattern?: RegExp, files: Map<string, stri
 	const logger = Services.logger;
 	logger.debug(`Walking ${dirOrUri}`);
 
+	const excludedDirectories = new Set([
+		'.git',
+		'.svn',
+		'node_modules',
+		'.vscode',
+		'.vs',
+		'bin',
+		'obj',
+		'dist',
+		'build',
+		'out',
+	]);
+
 	// Walk the contents of the directory.
 	const dir = dirOrUri.toFilePath();
 	for (const name of fs.readdirSync(dir)) {
@@ -63,6 +76,10 @@ export function walk(dirOrUri: string, pattern?: RegExp, files: Map<string, stri
 		try { pIsDirectory = fs.statSync(p).isDirectory(); }
 		catch (e) { logger.warn(`The OS threw an exception checking whether ${p} is a directory.`, 0, e); }
 		if (pIsDirectory) {
+			if (excludedDirectories.has(name) || name.startsWith('.')) {
+				logger.debug(`Skipping excluded directory: ${p}`, 1);
+				continue;
+			}
 			// Recursive call for directories.
 			walk(p, pattern, files);
 		} else if (pattern?.test(name) ?? true) {
