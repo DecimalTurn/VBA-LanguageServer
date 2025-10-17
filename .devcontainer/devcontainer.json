@@ -13,6 +13,5 @@
 			]
 		}
 	},
-	//If not working properly, we might need to: chmod +x ./.devcontainer/setup.sh
-	"postCreateCommand": "./.devcontainer/setup.sh"
+	"postCreateCommand": "bash ./.devcontainer/setup.sh"
 }
