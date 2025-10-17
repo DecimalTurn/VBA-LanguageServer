@@ -169,7 +169,7 @@ unreservedWord
     | compilerConstant
     ;
 
-anyWord: ( unreservedWord | reservedWord)+;
+anyWord: (unreservedWord | reservedWord)+;
 
 anyOtherLine
     : (WS* anyWord)+
