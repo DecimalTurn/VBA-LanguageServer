@@ -44,7 +44,9 @@ npm ci
 npm i -g @vscode/vsce
 npm run build:textMate
 npm run antlr
-npm run mvantlr
+# For some reason, antlr4ng writes to a different location on the VM
+# than it does locally, preventing compile. Command added to move the generated files.
+mv ./server/src/antlr/out/server/src/antlr/* ./server/src/antlr/out
 
 echo "Setup complete!"
 echo "You can now run 'npm run testsh' to execute e2e tests in the headless environment."
