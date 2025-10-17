@@ -1,7 +1,7 @@
 {
-	"image": "mcr.microsoft.com/devcontainers/universal:2",
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:22",
 	"features": {
-		"ghcr.io/devcontainers-community/npm-features/typescript:1": {}
+		"ghcr.io/roul/devcontainer-features/mise-java:1": {}
 	},
 	"customizations": {
 		"vscode": {
