@@ -376,7 +376,7 @@ export class VbaListener extends vbaListener {
         if (this.verbose) Services.logger.debug(`${source}: ${ctx.getText()}`, this.parserStateStack.length);
         const nameElement = this.parserState.nameElements.at(-1);
         if (!nameElement) {
-            Services.logger.error(`Cannot add name ${ctx.getText()}`, this.parserStateStack.length);
+            Services.logger.error(`Cannot add name ${ctx.getText()} in ${this.document.name}`, this.parserStateStack.length);
             return;
         }
 
