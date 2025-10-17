@@ -50,3 +50,5 @@ mv ./server/src/antlr/out/server/src/antlr/* ./server/src/antlr/out
 
 echo "Setup complete!"
 echo "You can now run 'npm run testsh' to execute e2e tests in the headless environment."
+
+# Logs: /workspaces/.codespaces/.persistedshare/creation.log
