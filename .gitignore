@@ -13,3 +13,4 @@ template*
 # Workspace settings
 .vscode-test
 .vscode/settings.json
+server/out/

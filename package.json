@@ -162,6 +162,7 @@
 		"test:textMate:unit": "vscode-tmgrammar-test ./test/textmate/**/*.vba",
 		"test:textMate:snap": "vscode-tmgrammar-snap ./test/textmate/snapshot/*.??s",
 		"test:vsc:unit": "vscode-test",
+		"test:antlr:unit": "tsc --project server/tsconfig.json && npx mocha server/out/test/**/*.test.js",
 		"testsh": "sh ./scripts/e2e.sh",
 		"testps": "powershell ./scripts/e2e.ps1"
 	},
