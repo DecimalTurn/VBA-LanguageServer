@@ -23,7 +23,7 @@ constDirectiveName
     ;
 
 directiveParenthesizedExpression
-    : '(' WS? directiveExpression WS? ')'
+    : LPAREN WS? directiveExpression WS? RPAREN
     ;
 
 directiveLiteralExpression
@@ -154,6 +154,8 @@ reservedWord
     | PLUS
     | SUBT
     | THEN
+    | LPAREN
+    | RPAREN
     ;
 
 unreservedWord
@@ -290,6 +292,14 @@ fragment NBSP
 
 fragment UNDERSCORE
     : '_'
+    ;
+
+LPAREN
+    : '('
+    ;
+
+RPAREN
+    : ')'
     ;
 
 COLON
