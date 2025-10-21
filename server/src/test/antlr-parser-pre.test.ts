@@ -101,7 +101,7 @@ describe('ANTLR VBA Preprocessor Parser', () => {
     }
     
     it('should parse function call with string literal and parentheses', () => {
-        const testFilePath = path.join(__dirname, '../../../test/parser/pre/ParsingParentheses.bas');
+        const testFilePath = path.join(__dirname, '../../../test/parser/pre/ParsingParenthesis.bas');
         const input = fs.readFileSync(testFilePath, 'utf8');
         
         const result = parseAndGetErrors(input);
