@@ -37,20 +37,29 @@ jobs:
         BRANCH_NAME="${{ github.ref_name }}"
         
         # Find the latest pre-release tag for this branch pattern
+        # Look for tags in format: v*-branch.* or *-branch.*
         LATEST_TAG=$(git tag -l "*-${BRANCH_NAME}.*" --sort=-version:refname | head -n1)
+        
+        echo "🔍 Looking for existing tags with pattern: *-${BRANCH_NAME}.*"
+        echo "📋 All matching tags:"
+        git tag -l "*-${BRANCH_NAME}.*" --sort=-version:refname || echo "No matching tags found"
+        echo "🏷️ Latest tag found: ${LATEST_TAG:-'(none)'}"
         
         if [ -z "$LATEST_TAG" ]; then
           # No previous pre-release found, start with 1
           PRE_RELEASE_NUMBER="1"
+          echo "✨ No previous pre-release found, starting with ${BRANCH_NAME}.1"
         else
-          # Extract number from tag (format: something-alt.X)
+          # Extract number from tag (format: v1.2.3-alt.X or 1.2.3-alt.X)
           CURRENT_NUMBER=$(echo "$LATEST_TAG" | grep -o "\-${BRANCH_NAME}\.[0-9]\+" | sed "s/-${BRANCH_NAME}\.//")
           if [ -z "$CURRENT_NUMBER" ]; then
             # Fallback if pattern doesn't match
             PRE_RELEASE_NUMBER="1"
+            echo "⚠️ Could not extract number from tag, falling back to ${BRANCH_NAME}.1"
           else
             # Increment the number
             PRE_RELEASE_NUMBER=$((CURRENT_NUMBER + 1))
+            echo "🔢 Found existing ${BRANCH_NAME}.${CURRENT_NUMBER}, incrementing to ${BRANCH_NAME}.${PRE_RELEASE_NUMBER}"
           fi
         fi
         
@@ -70,6 +79,14 @@ jobs:
         echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
         echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
         
+        echo ""
+        echo "📦 Version Summary:"
+        echo "   Base version: $BASE_VERSION"
+        echo "   Branch: $BRANCH_NAME"
+        echo "   Pre-release number: $PRE_RELEASE_NUMBER"
+        echo "   New version: $NEW_VERSION"
+        echo "   Tag will be: v$NEW_VERSION"
+        echo ""
         echo "✅ Updated version from $BASE_VERSION to $NEW_VERSION"
         
     - name: Build extension
