@@ -72,15 +72,6 @@ jobs:
         
         echo "✅ Updated version from $BASE_VERSION to $NEW_VERSION"
         
-    - name: Generate ANTLR files
-      run: |
-        npm run antlr
-        npm run build:textMate
-        # Handle ANTLR output location issue
-        if [ -d "./server/src/antlr/out/server/src/antlr" ]; then
-          mv ./server/src/antlr/out/server/src/antlr/* ./server/src/antlr/out/
-        fi
-        
     - name: Build extension
       run: npm run package
       
