@@ -8,6 +8,8 @@ This repository is under active development. Please ensure your contributions do
 3. Install [Java](https://www.oracle.com/au/java/technologies/downloads/) >= 11
 4. Install [NPM](https://github.com/coreybutler/nvm-windows)
 5. `npm install` to install dependencies.
+5. `npm run antlr` to generate antlr tooling.
+5. `npm run build` to generate antlr tooling.
 6. `npm run test` to build and unit test.
 7. Create a `.\sample` directory as a default workspace for client debugging (or update .\\.vscode\\launch.json as preferred).
 8. (Optional) Install [ANTLR4 grammar syntax support](https://marketplace.visualstudio.com/items?itemName=mike-lischke.vscode-antlr4) VS Code extension.
