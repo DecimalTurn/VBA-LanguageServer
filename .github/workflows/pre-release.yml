@@ -29,6 +29,49 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
+    - name: Update package version with pre-release suffix
+      id: version
+      run: |
+        # Get current version from package.json
+        BASE_VERSION=$(node -p "require('./package.json').version")
+        BRANCH_NAME="${{ github.ref_name }}"
+        
+        # Find the latest pre-release tag for this branch pattern
+        LATEST_TAG=$(git tag -l "*-${BRANCH_NAME}.*" --sort=-version:refname | head -n1)
+        
+        if [ -z "$LATEST_TAG" ]; then
+          # No previous pre-release found, start with 1
+          PRE_RELEASE_NUMBER="1"
+        else
+          # Extract number from tag (format: something-alt.X)
+          CURRENT_NUMBER=$(echo "$LATEST_TAG" | grep -o "\-${BRANCH_NAME}\.[0-9]\+" | sed "s/-${BRANCH_NAME}\.//")
+          if [ -z "$CURRENT_NUMBER" ]; then
+            # Fallback if pattern doesn't match
+            PRE_RELEASE_NUMBER="1"
+          else
+            # Increment the number
+            PRE_RELEASE_NUMBER=$((CURRENT_NUMBER + 1))
+          fi
+        fi
+        
+        # Create new version with pre-release suffix
+        NEW_VERSION="${BASE_VERSION}-${BRANCH_NAME}.${PRE_RELEASE_NUMBER}"
+        
+        # Update package.json
+        node -e "
+          const fs = require('fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          pkg.version = '$NEW_VERSION';
+          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+        "
+        
+        echo "base_version=$BASE_VERSION" >> $GITHUB_OUTPUT
+        echo "pre_release_number=$PRE_RELEASE_NUMBER" >> $GITHUB_OUTPUT
+        echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+        
+        echo "✅ Updated version from $BASE_VERSION to $NEW_VERSION"
+        
     - name: Generate ANTLR files
       run: |
         npm run antlr
@@ -63,10 +106,8 @@ jobs:
           # If triggered by a tag, use that tag
           echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
         else
-          # Generate a pre-release tag with timestamp
-          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-          BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9.-]/-/g')
-          echo "tag=pre-${{ steps.package.outputs.version }}-$BRANCH_NAME-$TIMESTAMP" >> $GITHUB_OUTPUT
+          # Use the updated version as the tag
+          echo "tag=v${{ steps.version.outputs.new_version }}" >> $GITHUB_OUTPUT
         fi
         
     - name: Create pre-release
@@ -83,7 +124,9 @@ jobs:
           This is an automated pre-release build from branch `${{ github.ref_name }}`.
           
           **Package Info:**
-          - Version: ${{ steps.package.outputs.version }}
+          - Base Version: ${{ steps.version.outputs.base_version }}
+          - Pre-release Version: ${{ steps.package.outputs.version }}
+          - Pre-release Number: ${{ steps.version.outputs.pre_release_number }}
           - Commit: ${{ github.sha }}
           - Branch: ${{ github.ref_name }}
           - Build Time: ${{ github.run_id }}
