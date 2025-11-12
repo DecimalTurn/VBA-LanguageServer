@@ -3525,7 +3525,7 @@ MACRO_LINE
 
 // identifier
 IDENTIFIER
-    : [A-Z][A-Z0-9_]*
+    : [\p{L}][\p{L}0-9_]* 
     ;
 
 FOREIGN_NAME
