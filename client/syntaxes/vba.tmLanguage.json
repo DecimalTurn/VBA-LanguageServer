@@ -29,6 +29,15 @@
       "name": "keyword.control.line-continuation.vba",
       "match": "(?<=\\s)_\\s*\\n"
     },
+    "identifierFirstChar": {
+      "match": "[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F]"
+    },
+    "identifierChar": {
+      "match": "[A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]"
+    },
+    "identifier": {
+      "match": "[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*"
+    },
     "main": {
       "patterns": [
         {
@@ -530,7 +539,7 @@
                       "include": "#literals"
                     },
                     {
-                      "match": "(?i)([a-z][a-z0-9_]*)",
+                      "match": "(?i)([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)",
                       "name": "variable.other.constant.label.vba"
                     }
                   ]
@@ -965,7 +974,7 @@
     "forLoop": {
       "name": "meta.flow.for-loop.vba",
       "begin": "(?i)\\bfor\\s+(?=[^'\\n])",
-      "end": "(?i)(next)(\\s+[a-z]\\w*)?",
+      "end": "(?i)(next)(\\s+[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F]\\w*)?",
       "beginCaptures": {
         "0": {
           "name": "keyword.control.flow.loop.vba"
@@ -998,7 +1007,7 @@
     "forLoopEach": {
       "name": "meta.for-each-loop.vba",
       "begin": "(?i)each\\s+(?=[^'\\n])",
-      "end": "(?i)(?=(next)(['\\n]|\\s+[a-z][a-z_0-9]*|\\s+_))",
+      "end": "(?i)(?=(next)(['\\n]|\\s+[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*|\\s+_))",
       "beginCaptures": {
         "0": {
           "name": "keyword.control.flow.loop.vba"
@@ -1016,7 +1025,7 @@
     "forLoopEachVar": {
       "name": "meta.forLoopEachVar.vba",
       "begin": "(?i)[\\w]*",
-      "end": "(?i)(?=(next)(['\\n]|\\s+[a-z][a-z_0-9]*|\\s+_))",
+      "end": "(?i)(?=(next)(['\\n]|\\s+[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*|\\s+_))",
       "beginCaptures": {
         "0": {
           "patterns": [
@@ -1041,7 +1050,7 @@
     "forLoopEachIn": {
       "name": "meta.forLoopEachIn.vba",
       "begin": "(?i)in\\s+",
-      "end": "(?i)(?=(next)(['\\n]|\\s+[a-z][a-z_0-9]*|\\s+_))",
+      "end": "(?i)(?=(next)(['\\n]|\\s+[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*|\\s+_))",
       "beginCaptures": {
         "0": {
           "name": "keyword.control.flow.loop.vba"
@@ -1059,7 +1068,7 @@
     "forLoopEachSet": {
       "name": "meta.forLoopEachSet.vba",
       "begin": "(?i)[.\\w()]*",
-      "end": "(?i)(?=(next)(['\\n]|\\s+[a-z][a-z_0-9]*|\\s+_))",
+      "end": "(?i)(?=(next)(['\\n]|\\s+[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*|\\s+_))",
       "beginCaptures": {
         "0": {
           "patterns": [
@@ -1103,7 +1112,7 @@
     "forLoopIterAssignment": {
       "name": "meta.forLoopIterAssignment.vba",
       "begin": "=",
-      "end": "(?i)(?=(next)(['\\n]|\\s+[a-z][a-z_0-9]*|\\s+_))",
+      "end": "(?i)(?=(next)(['\\n]|\\s+[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*|\\s+_))",
       "beginCaptures": {
         "0": {
           "name": "keyword.operator.assignment.vba"
@@ -1121,7 +1130,7 @@
     "forLoopIterAssignRangeFrom": {
       "name": "meta.forLoopIterAssignRangeFrom.vba",
       "begin": "(?i)[-.\\w()]+",
-      "end": "(?i)(?=(next)(['\\n]|\\s+[a-z][a-z_0-9]*|\\s+_))",
+      "end": "(?i)(?=(next)(['\\n]|\\s+[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*|\\s+_))",
       "beginCaptures": {
         "0": {
           "patterns": [
@@ -1149,7 +1158,7 @@
     "forLoopIterAssignTo": {
       "name": "meta.forLoopIterAssignTo.vba",
       "begin": "(?i)to",
-      "end": "(?i)(?=(next)(['\\n]|\\s+[a-z][a-z_0-9]*|\\s+_))",
+      "end": "(?i)(?=(next)(['\\n]|\\s+[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*|\\s+_))",
       "beginCaptures": {
         "0": {
           "name": "keyword.control.flow.loop.vba"
@@ -1167,7 +1176,7 @@
     "forLoopIterAssignRangeTo": {
       "name": "meta.forLoopIterAssignRangeTo.vba",
       "begin": "(?i)[-.\\w()]+",
-      "end": "(?i)(?=(next)(['\\n]|\\s+[a-z][a-z_0-9]*|\\s+_))",
+      "end": "(?i)(?=(next)(['\\n]|\\s+[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*|\\s+_))",
       "beginCaptures": {
         "0": {
           "patterns": [
@@ -1198,7 +1207,7 @@
     "forLoopIterRangeStep": {
       "name": "meta.forLoopIterRangeStep.vba",
       "begin": "(?i)step",
-      "end": "(?i)(?=(next)(['\\n]|\\s+[a-z][a-z_0-9]*|\\s+_))",
+      "end": "(?i)(?=(next)(['\\n]|\\s+[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*|\\s+_))",
       "beginCaptures": {
         "0": {
           "name": "keyword.control.flow.loop.vba"
@@ -1216,7 +1225,7 @@
     "forLoopIterRangeStepAmount": {
       "name": "meta.forLoopIterRangeStepAmount.vba",
       "begin": "(?i)[-.\\w()]+",
-      "end": "(?i)(?=(next)(['\\n]|\\s+[a-z][a-z_0-9]*|\\s+_))",
+      "end": "(?i)(?=(next)(['\\n]|\\s+[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*|\\s+_))",
       "beginCaptures": {
         "0": {
           "patterns": [
@@ -1253,7 +1262,7 @@
       ]
     },
     "labels": {
-      "match": "(?i)^(\\s*[a-z][a-z0-9_]*|\\d+):",
+      "match": "(?i)^(\\s*[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*|\\d+):",
       "captures": {
         "1": {
           "name": "variable.other.constant.label.vba"
@@ -1487,7 +1496,7 @@
     },
     "argumentName": {
       "name": "meta.arg-name.vba",
-      "match": "(?i)([a-z][a-z0-9_]*)?(:=)",
+      "match": "(?i)([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)?(:=)",
       "captures": {
         "1": {
           "name": "variable.parameter.name.vba"
@@ -1624,7 +1633,7 @@
     },
     "enum": {
       "name": "meta.enum.declaration.vba",
-      "begin": "(?i)^\\s*((?:(?:Public|Private)\\s+)?\\s*Enum)\\s+([a-z][a-z0-9_]+)(\\s+(?:'|Rem).*)?",
+      "begin": "(?i)^\\s*((?:(?:Public|Private)\\s+)?\\s*Enum)\\s+([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]+)(\\s+(?:'|Rem).*)?",
       "beginCaptures": {
         "1": {
           "name": "storage.type.enum.vba"
@@ -1663,7 +1672,7 @@
       }
     },
     "enumMember": {
-      "match": "(?i)^\\s*([a-z][a-z0-9_]*)(?:\\s*(=)\\s*([^\\n']*))?(\\s*(?:'|Rem).*)?",
+      "match": "(?i)^\\s*([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)(?:\\s*(=)\\s*([^\\n']*))?(\\s*(?:'|Rem).*)?",
       "captures": {
         "1": {
           "name": "variable.other.enummember.vba"
@@ -1689,7 +1698,7 @@
     },
     "struct": {
       "name": "meta.struct.declaration.vba",
-      "begin": "(?i)^\\s*((?:(?:Public|Private)\\s+)?Type)\\s+([a-z][a-z0-9_]*)?(\\s+(?:'|Rem).*)?",
+      "begin": "(?i)^\\s*((?:(?:Public|Private)\\s+)?Type)\\s+([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)?(\\s+(?:'|Rem).*)?",
       "beginCaptures": {
         "1": {
           "name": "storage.type.struct.vba"
@@ -1728,7 +1737,7 @@
       }
     },
     "structProperty": {
-      "match": "(?i)^\\s*([a-z][a-z0-9_]*)(\\(.*\\))?(\\s+As\\s+[a-z][a-z0-9_]*)?(\\s+(?:'|Rem).*)?",
+      "match": "(?i)^\\s*([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)(\\(.*\\))?(\\s+As\\s+[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)?(\\s+(?:'|Rem).*)?",
       "captures": {
         "1": {
           "name": "variable.other.readwrite.vba"
@@ -1758,8 +1767,8 @@
     },
     "methodSignature": {
       "name": "source.method.signature.vba",
-      "begin": "(?i)^\\s*((?:Public|Private)?\\b\\s*(?:(?:Sub|Function)|Property\\s+(?:Let|Get|Set)))\\s+([a-z][a-z0-9_]*)\\s*(\\()",
-      "end": "(?i)(?<=\\))(\\s+as\\s+[a-z][a-z0-9_]*)?",
+      "begin": "(?i)^\\s*((?:Public|Private)?\\b\\s*(?:(?:Sub|Function)|Property\\s+(?:Let|Get|Set)))\\s+([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)\\s*(\\()",
+      "end": "(?i)(?<=\\))(\\s+as\\s+[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)?",
       "beginCaptures": {
         "1": {
           "name": "storage.type.method.vba"
@@ -1788,7 +1797,7 @@
     },
     "methodAttribute": {
       "name": "source.method.attribute.vba",
-      "match": "(?i)^\\s*(Attribute)\\s+([a-z][a-z0-9_]*)(\\.VB_(?:Description|UserMemId))\\s+(=)\\s+(.*)",
+      "match": "(?i)^\\s*(Attribute)\\s+([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)(\\.VB_(?:Description|UserMemId))\\s+(=)\\s+(.*)",
       "captures": {
         "1": {
           "name": "keyword.attribute.vba"
@@ -1961,7 +1970,7 @@
           ]
         },
         "variableDeclarationVarName": {
-          "begin": "(?i)[a-z][a-z0-9_]*",
+          "begin": "(?i)[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*",
           "end": "(?=[':\\n,])",
           "beginCaptures": {
             "0": {
@@ -1998,7 +2007,7 @@
           ]
         },
         "variableDeclarationConstName": {
-          "begin": "(?i)[a-z][a-z0-9_]*",
+          "begin": "(?i)[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*",
           "end": "(?=[':\\n,])",
           "beginCaptures": {
             "0": {
@@ -2230,7 +2239,7 @@
     },
     "valueAssignment": {
       "name": "meta.variable-assignment.vba",
-      "begin": "(?i)(?:(Let|Set)\\s+)?((?:[a-z][a-z0-9_]*)?(?:[.!](?:(?:[a-z][a-z0-9_]*)?[.!])*)?(?:[a-z][a-z0-9_]*)?)(\\s*=\\s*)",
+      "begin": "(?i)(?:(Let|Set)\\s+)?((?:[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)?(?:[.!](?:(?:[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)?[.!])*)?(?:[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)?)(\\s*=\\s*)",
       "end": "(?=[',:)\\n])",
       "beginCaptures": {
         "1": {
@@ -2270,7 +2279,7 @@
       "match": "(?i)\\."
     },
     "propertyChain": {
-      "match": "(?i)([.!])([a-z][a-z0-9_]*)*",
+      "match": "(?i)([.!])([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)*",
       "captures": {
         "1": {
           "patterns": [
@@ -2286,7 +2295,7 @@
     },
     "variable": {
       "name": "meta.variable-or-property.vba",
-      "match": "(?i)(?:(?:(\\bMe\\b|[.!])|([a-z][a-z0-9_]*)))((?:[.!](?:[a-z][a-z0-9_]*))+)?",
+      "match": "(?i)(?:(?:(\\bMe\\b|[.!])|([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)))((?:[.!](?:[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*))+)?",
       "captures": {
         "1": {
           "patterns": [
@@ -2306,7 +2315,7 @@
             },
             {
               "name": "variable.other.readwrite.vba",
-              "match": "(?i)([a-z][a-z0-9_]*)"
+              "match": "(?i)([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)"
             }
           ]
         },
@@ -2321,7 +2330,7 @@
     },
     "functionCall": {
       "name": "meta.function.call.vba",
-      "begin": "(?i)(?:([a-z][a-z0-9_]*)(?=\\.))?(\\.(?:(?:[a-z][a-z0-9_]*)?\\.)*)?([a-z][a-z0-9_]*)([&%#!@$^])?(?=\\()",
+      "begin": "(?i)(?:([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)(?=\\.))?(\\.(?:(?:[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)?\\.)*)?([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)([&%#!@$^])?(?=\\()",
       "end": "(\\)|(?='))",
       "beginCaptures": {
         "1": {
@@ -2356,7 +2365,7 @@
     },
     "subCall": {
       "name": "meta.sub-call.vba",
-      "begin": "(?i)(?:([a-z][a-z0-9_]*)(?=\\.))?(\\.(?:(?:[a-z][a-z0-9_]*)?\\.)*)?([a-z][a-z0-9_]*)\\s*(?=\\s[^,'\\n])",
+      "begin": "(?i)(?:([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)(?=\\.))?(\\.(?:(?:[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)?\\.)*)?([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)\\s*(?=\\s[^,'\\n])",
       "end": "(?=[:'\\n])",
       "beginCaptures": {
         "1": {
@@ -2385,7 +2394,7 @@
     },
     "subCallNoArgs": {
       "name": "meta.sub-call.vba",
-      "match": "(?i)(?:([a-z][a-z0-9_]*)(?=\\.))?(\\.(?:(?:[a-z][a-z0-9_]*)?\\.)*)?([a-z][a-z0-9_]*)",
+      "match": "(?i)(?:([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)(?=\\.))?(\\.(?:(?:[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)?\\.)*)?([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*)",
       "captures": {
         "1": {
           "patterns": [

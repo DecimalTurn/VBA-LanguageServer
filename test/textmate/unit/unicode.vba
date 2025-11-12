@@ -13,7 +13,7 @@ Sub TestUnicode()
 '       ^^^^^^^^                          variable.other.readwrite.vba
     Dim Müller As String
 '       ^^^^^^                            variable.other.readwrite.vba
-    
+
     café = "coffee"
 '   ^^^^                                  variable.other.readwrite.vba
 '          ^^^^^^^^                       string.quoted.double.vba
@@ -26,13 +26,13 @@ Sub TestUnicode()
     François = "Francis"
 '   ^^^^^^^^                              variable.other.readwrite.vba
 '              ^^^^^^^^^                  string.quoted.double.vba
-    
+
     ' Function call with Unicode parameter
     Call testFonction(café, résumé)
 '        ^^^^^^^^^^^^                     entity.name.function.call.vba
 '                     ^^^^                variable.other.readwrite.vba
 '                           ^^^^^^        variable.other.readwrite.vba
-    
+
     ' Unicode variable in expression
     If café = "coffee" Then
 '      ^^^^                               variable.other.readwrite.vba
@@ -45,13 +45,13 @@ Sub TestUnicode()
 '                             ^           keyword.operator.concatenation.vba
 '                               ^^^^^^^^   variable.other.readwrite.vba
     End If
-    
+
     ' Valid underscored identifiers (not starting with underscore)
     Dim my_café As String
 '       ^^^^^^^                           variable.other.readwrite.vba
     Dim test_résumé As String
 '       ^^^^^^^^^^^                       variable.other.readwrite.vba
-    
+
     my_café = café
 '   ^^^^^^^                               variable.other.readwrite.vba
 '             ^^^^                        variable.other.readwrite.vba
