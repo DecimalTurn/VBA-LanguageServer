@@ -10,7 +10,7 @@ import * as assert from 'assert';
 import * as fs from 'fs';
 import * as path from 'path';
 import { VbaParser, VbaLexer } from '../project/parser/vbaAntlr';
-import { CharStream, CharStreamImpl, CommonTokenStream } from 'antlr4ng';
+import { CharStream, CommonTokenStream } from 'antlr4ng';
 
 describe('ANTLR VBA Main Parser', () => {
     
@@ -155,7 +155,7 @@ describe('ANTLR VBA Main Parser', () => {
      * Test helper to parse input and collect syntax errors
      */
     function parseAndGetErrors(input: string) {
-        const inputStream = new CharStreamImpl(input);
+        const inputStream = CharStream.fromString(input);
         const lexer = new VbaLexer(inputStream);
         const tokens = new CommonTokenStream(lexer);
         const parser = new VbaParser(tokens);
