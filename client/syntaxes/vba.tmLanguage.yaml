@@ -66,6 +66,16 @@ repository:
     name: keyword.control.line-continuation.vba
     match: (?<=\s)_\s*\n
 
+  # Reusable identifier patterns with Unicode support
+  identifierFirstChar:
+    match: '[A-Za-z\u00C0-\u00D6\u00D8-\u017F]'
+
+  identifierChar:
+    match: '[A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]'
+
+  identifier:
+    match: '[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*'
+
   main:
     patterns:
       - include: "#enum"
@@ -342,11 +352,11 @@ repository:
                 patterns:
                   - include: "#separator"
                   - include: "#literals"
-                  - match: (?i)([a-z][a-z0-9_]*)
+                  - match: (?i)([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)
                     name: variable.other.constant.label.vba
               goToGoSubReturnStatement:
                 name: meta.goToGoSubReturnStatement.vba
-                match: (?i)\b(gosub|return|goto)(?:\s+([a-z][a-z0-9_]*|\d+))?\b
+                match: (?i)\b(gosub|return|goto)(?:\s+([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*|\d+))?\b
                 captures:
                   1:
                     name: keyword.control.jump.vba
@@ -388,7 +398,7 @@ repository:
             match: "(?i)^(#if|#then|#elseif|#else)\\b"
             
           directiveConst:
-            match: "(?i)^\\s*(#const)\\s+([a-z][a-z0-9_]*)(\\s+=.*)"
+            match: "(?i)^\\s*(#const)\\s+([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)(\\s+=.*)"
             captures:
               1:
                 name: constant.language.vba
@@ -591,7 +601,7 @@ repository:
     # different end scenarios similar to Open statements.
     name: meta.flow.for-loop.vba
     begin: (?i)\bfor\s+(?=[^'\n])
-    end: (?i)(next)(\s+[a-z]\w*)?
+    end: (?i)(next)(\s+[A-Za-z\u00C0-\u00D6\u00D8-\u017F]\w*)?
     beginCaptures:
       0:
         name: keyword.control.flow.loop.vba
@@ -610,7 +620,7 @@ repository:
   forLoopEach:
     name: meta.for-each-loop.vba
     begin: (?i)each\s+(?=[^'\n])
-    end: (?i)(?=(next)(['\n]|\s+[a-z][a-z_0-9]*|\s+_))
+    end: (?i)(?=(next)(['\n]|\s+[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*|\s+_))
     beginCaptures:
       0:
         name: keyword.control.flow.loop.vba
@@ -621,7 +631,7 @@ repository:
   forLoopEachVar:
     name: meta.forLoopEachVar.vba
     begin: (?i)[\w]*
-    end: (?i)(?=(next)(['\n]|\s+[a-z][a-z_0-9]*|\s+_))
+    end: (?i)(?=(next)(['\n]|\s+[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*|\s+_))
     beginCaptures:
       0:
         patterns:
@@ -634,7 +644,7 @@ repository:
   forLoopEachIn:
     name: meta.forLoopEachIn.vba
     begin: (?i)in\s+
-    end: (?i)(?=(next)(['\n]|\s+[a-z][a-z_0-9]*|\s+_))
+    end: (?i)(?=(next)(['\n]|\s+[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*|\s+_))
     beginCaptures:
       0:
         name: keyword.control.flow.loop.vba
@@ -645,7 +655,7 @@ repository:
   forLoopEachSet:
     name: meta.forLoopEachSet.vba
     begin: (?i)[.\w()]*
-    end: (?i)(?=(next)(['\n]|\s+[a-z][a-z_0-9]*|\s+_))
+    end: (?i)(?=(next)(['\n]|\s+[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*|\s+_))
     beginCaptures:
       0:
         patterns:
@@ -656,8 +666,8 @@ repository:
 
   forLoopIter:
     name: meta.for-iterator-loop.vba
-    begin: (?i)[a-z][\w]*
-    end: (?i)(?=(next)(['\n]|\s+[a-z][a-z_0-9]*|\s+_))
+    begin: (?i)[A-Za-z\u00C0-\u00D6\u00D8-\u017F][\w]*
+    end: (?i)(?=(next)(['\n]|\s+[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*|\s+_))
     beginCaptures:
       0:
         patterns:
@@ -669,7 +679,7 @@ repository:
   forLoopIterAssignment:
     name: meta.forLoopIterAssignment.vba
     begin: =
-    end: (?i)(?=(next)(['\n]|\s+[a-z][a-z_0-9]*|\s+_))
+    end: (?i)(?=(next)(['\n]|\s+[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*|\s+_))
     beginCaptures:
       0:
         name: keyword.operator.assignment.vba
@@ -680,7 +690,7 @@ repository:
   forLoopIterAssignRangeFrom:
     name: meta.forLoopIterAssignRangeFrom.vba
     begin: (?i)[-.\w()]+
-    end: (?i)(?=(next)(['\n]|\s+[a-z][a-z_0-9]*|\s+_))
+    end: (?i)(?=(next)(['\n]|\s+[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*|\s+_))
     beginCaptures:
       0:
         patterns:
@@ -694,7 +704,7 @@ repository:
   forLoopIterAssignTo:
     name: meta.forLoopIterAssignTo.vba
     begin: (?i)to
-    end: (?i)(?=(next)(['\n]|\s+[a-z][a-z_0-9]*|\s+_))
+    end: (?i)(?=(next)(['\n]|\s+[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*|\s+_))
     beginCaptures:
       0:
         name: keyword.control.flow.loop.vba
@@ -705,7 +715,7 @@ repository:
   forLoopIterAssignRangeTo:
     name: meta.forLoopIterAssignRangeTo.vba
     begin: (?i)[-.\w()]+
-    end: (?i)(?=(next)(['\n]|\s+[a-z][a-z_0-9]*|\s+_))
+    end: (?i)(?=(next)(['\n]|\s+[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*|\s+_))
     beginCaptures:
       0:
         patterns:
@@ -720,7 +730,7 @@ repository:
   forLoopIterRangeStep:
     name: meta.forLoopIterRangeStep.vba
     begin: (?i)step
-    end: (?i)(?=(next)(['\n]|\s+[a-z][a-z_0-9]*|\s+_))
+    end: (?i)(?=(next)(['\n]|\s+[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*|\s+_))
     beginCaptures:
       0:
         name: keyword.control.flow.loop.vba
@@ -731,7 +741,7 @@ repository:
   forLoopIterRangeStepAmount:
     name: meta.forLoopIterRangeStepAmount.vba
     begin: (?i)[-.\w()]+
-    end: (?i)(?=(next)(['\n]|\s+[a-z][a-z_0-9]*|\s+_))
+    end: (?i)(?=(next)(['\n]|\s+[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*|\s+_))
     beginCaptures:
       0:
         patterns:
@@ -751,7 +761,7 @@ repository:
       - include: "#expressionList"
 
   labels:
-    match: '(?i)^(\s*[a-z][a-z0-9_]*|\d+):'
+    match: '(?i)^(\s*[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*|\d+):'
     captures:
       1:
         name: variable.other.constant.label.vba
@@ -789,7 +799,7 @@ repository:
     match: (?i)(boolean|byte|currency|date|decimal|double|integer|long(long|ptr)?|single|string|variant)\b
   AsTypeObject:
     name: support.type.object.$1.vba
-    match: (?i)([a-z][a-z0-9._]*)
+    match: (?i)([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9._\u00C0-\u00D6\u00D8-\u017F]*)
 
   argumentsSignature:
     name: meta.arguments.signature.vba
@@ -839,7 +849,7 @@ repository:
 
   argumentSignatureFromParam:
     name: meta.argument-signature.param.vba
-    begin: (?i)[a-z][a-z0-9_]*(\(\))?
+    begin: (?i)[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*(\(\))?
     end: (?=[,):'\n])
     beginCaptures:
       0:
@@ -862,7 +872,7 @@ repository:
 
   argumentSignatureFromTypeName:
     name: meta.argument-signature.type.vba
-    begin: (?i)([a-z][a-z0-9._]*)
+    begin: (?i)([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9._\u00C0-\u00D6\u00D8-\u017F]*)
     end: (?=[,):'\n])
     beginCaptures:
       0:
@@ -886,7 +896,7 @@ repository:
 
   argumentName:
     name: meta.arg-name.vba
-    match: (?i)([a-z][a-z0-9_]*)?(:=)
+    match: (?i)([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)?(:=)
     captures:
       1:
         name: variable.parameter.name.vba
@@ -968,7 +978,7 @@ repository:
 
   enum:
     name: meta.enum.declaration.vba
-    begin: (?i)^\s*((?:(?:Public|Private)\s+)?\s*Enum)\s+([a-z][a-z0-9_]+)(\s+(?:'|Rem).*)?
+    begin: (?i)^\s*((?:(?:Public|Private)\s+)?\s*Enum)\s+([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]+)(\s+(?:'|Rem).*)?
     beginCaptures:
       1:
         name: storage.type.enum.vba
@@ -989,7 +999,7 @@ repository:
           - include: "#comments"
   
   enumMember:
-    match: (?i)^\s*([a-z][a-z0-9_]*)(?:\s*(=)\s*([^\n']*))?(\s*(?:'|Rem).*)?
+    match: (?i)^\s*([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)(?:\s*(=)\s*([^\n']*))?(\s*(?:'|Rem).*)?
     captures:
       1:
         name: variable.other.enummember.vba
@@ -1004,7 +1014,7 @@ repository:
 
   struct:
     name: meta.struct.declaration.vba
-    begin: (?i)^\s*((?:(?:Public|Private)\s+)?Type)\s+([a-z][a-z0-9_]*)?(\s+(?:'|Rem).*)?
+    begin: (?i)^\s*((?:(?:Public|Private)\s+)?Type)\s+([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)?(\s+(?:'|Rem).*)?
     beginCaptures:
       1: # Type declaration
         name: storage.type.struct.vba
@@ -1026,7 +1036,7 @@ repository:
           - include: "#comments"
 
   structProperty:
-    match: (?i)^\s*([a-z][a-z0-9_]*)(\(.*\))?(\s+As\s+[a-z][a-z0-9_]*)?(\s+(?:'|Rem).*)?
+    match: (?i)^\s*([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)(\(.*\))?(\s+As\s+[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)?(\s+(?:'|Rem).*)?
     captures:
       1: # Property
         name: variable.other.readwrite.vba
@@ -1042,8 +1052,8 @@ repository:
 
   methodSignature:
     name: source.method.signature.vba
-    begin: (?i)^\s*((?:Public|Private)?\b\s*(?:(?:Sub|Function)|Property\s+(?:Let|Get|Set)))\s+([a-z][a-z0-9_]*)\s*(\()
-    end: (?i)(?<=\))(\s+as\s+[a-z][a-z0-9_]*)?
+    begin: (?i)^\s*((?:Public|Private)?\b\s*(?:(?:Sub|Function)|Property\s+(?:Let|Get|Set)))\s+([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)\s*(\()
+    end: (?i)(?<=\))(\s+as\s+[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)?
     beginCaptures:
       1:
         name: storage.type.method.vba
@@ -1059,7 +1069,7 @@ repository:
 
   methodAttribute:
     name: source.method.attribute.vba
-    match: (?i)^\s*(Attribute)\s+([a-z][a-z0-9_]*)(\.VB_(?:Description|UserMemId))\s+(=)\s+(.*)
+    match: (?i)^\s*(Attribute)\s+([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)(\.VB_(?:Description|UserMemId))\s+(=)\s+(.*)
     captures:
       1:
         name: keyword.attribute.vba
@@ -1155,7 +1165,7 @@ repository:
           - include: "#variableDeclarationConstName"
 
       variableDeclarationVarName:
-        begin: (?i)[a-z][a-z0-9_]*
+        begin: (?i)[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*
         end: (?=[':\n,])
         beginCaptures:
           0:
@@ -1175,7 +1185,7 @@ repository:
           - include: "#expression"
 
       variableDeclarationConstName:
-        begin: (?i)[a-z][a-z0-9_]*
+        begin: (?i)[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*
         end: (?=[':\n,])
         beginCaptures:
           0:
@@ -1243,7 +1253,7 @@ repository:
           - include: "#methodDeclarationIdentifier"
 
       methodDeclarationIdentifier:
-        begin: (?i)[a-z][a-z0-9_]*
+        begin: (?i)[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*
         end: (?=[)':\n])
         beginCaptures:
           0:
@@ -1299,7 +1309,7 @@ repository:
 
   valueAssignment:
     name: meta.variable-assignment.vba
-    begin: (?i)(?:(Let|Set)\s+)?((?:[a-z][a-z0-9_]*)?(?:[.!](?:(?:[a-z][a-z0-9_]*)?[.!])*)?(?:[a-z][a-z0-9_]*)?)(\s*=\s*)
+    begin: (?i)(?:(Let|Set)\s+)?((?:[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)?(?:[.!](?:(?:[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)?[.!])*)?(?:[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)?)(\s*=\s*)
     end: (?=[',:)\n])
     beginCaptures:
       1: # Let|Set
@@ -1321,7 +1331,7 @@ repository:
     match: (?i)\.
 
   propertyChain:
-    match: (?i)([.!])([a-z][a-z0-9_]*)*
+    match: (?i)([.!])([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)*
     captures:
       1:
         patterns:
@@ -1331,7 +1341,7 @@ repository:
 
   variable:
     name: meta.variable-or-property.vba
-    match: (?i)(?:(?:(\bMe\b|[.!])|([a-z][a-z0-9_]*)))((?:[.!](?:[a-z][a-z0-9_]*))+)?
+    match: (?i)(?:(?:(\bMe\b|[.!])|([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)))((?:[.!](?:[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*))+)?
     captures:
       1:
         patterns:
@@ -1342,14 +1352,14 @@ repository:
           - name: variable.other.constant
             match: ([A-Z][A-Z0-9_]*)\b
           - name: variable.other.readwrite.vba
-            match: (?i)([a-z][a-z0-9_]*)
+            match: (?i)([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)
       3:
         patterns:
           - include: "#propertyChain"
 
   functionCall:
     name: meta.function.call.vba
-    begin: (?i)(?:([a-z][a-z0-9_]*)(?=\.))?(\.(?:(?:[a-z][a-z0-9_]*)?\.)*)?([a-z][a-z0-9_]*)([&%#!@$^])?(?=\()
+    begin: (?i)(?:([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)(?=\.))?(\.(?:(?:[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)?\.)*)?([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)([&%#!@$^])?(?=\()
     end: (\)|(?='))
     beginCaptures:
       1:
@@ -1370,7 +1380,7 @@ repository:
 
   subCall:
     name: meta.sub-call.vba
-    begin: (?i)(?:([a-z][a-z0-9_]*)(?=\.))?(\.(?:(?:[a-z][a-z0-9_]*)?\.)*)?([a-z][a-z0-9_]*)\s*(?=\s[^,'\n])
+    begin: (?i)(?:([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)(?=\.))?(\.(?:(?:[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)?\.)*)?([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)\s*(?=\s[^,'\n])
     end: (?=[:'\n])
     beginCaptures:
       1:
@@ -1386,7 +1396,7 @@ repository:
 
   subCallNoArgs:
     name: meta.sub-call.vba
-    match: (?i)(?:([a-z][a-z0-9_]*)(?=\.))?(\.(?:(?:[a-z][a-z0-9_]*)?\.)*)?([a-z][a-z0-9_]*)
+    match: (?i)(?:([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)(?=\.))?(\.(?:(?:[A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)?\.)*)?([A-Za-z\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*)
     captures:
       1:
         patterns:
