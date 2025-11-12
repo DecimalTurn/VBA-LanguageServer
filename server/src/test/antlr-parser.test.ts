@@ -216,6 +216,37 @@ describe('ANTLR VBA Main Parser', () => {
         
         console.log('    ✅ Successfully parsed VBA code with external type references (Dictionary, Excel.Application, etc.)');
     });
+
+    it('should parse VBA code with Unicode identifiers (accented characters) without errors', () => {
+        const testFilePath = path.join(__dirname, '../../../test/fixtures/UnicodeIdentifiers.bas');
+        const input = fs.readFileSync(testFilePath, 'utf8');
+        
+        const result = parseAndGetErrors(input);
+        
+        logParsingResults(input, result);
+        const implicitTokens = checkImplicitTokens(result);
+        
+        // The test should pass with Unicode identifiers containing accented characters
+        assert.strictEqual(result.syntaxErrors, 0, `Expected no syntax errors, but found: ${result.errors.join(', ')}`);
+        
+        // Ensure Unicode identifiers are properly tokenized as IDENTIFIER tokens, not implicit tokens
+        assert.strictEqual(implicitTokens.length, 0, `Found implicit tokens: ${implicitTokens.map(t => t.typeName).join(', ')}`);
+        
+        // Verify that specific Unicode identifiers are properly tokenized as IDENTIFIER
+        const identifierTokens = result.tokenInfo.filter(t => t.typeName === 'IDENTIFIER');
+        const unicodeIdentifiers = ['café', 'naïve', 'résumé', 'piñata', 'señor', 'mañana', 'jalapeño', 'façade', 
+                                   'björk', 'José', 'François', 'Müller', 'Łukasz', 'Αθήνα', 'москва', 
+                                   'messäge', 'calculér', 'numbér'];
+        
+        const foundUnicodeIds = identifierTokens.filter(token => 
+            unicodeIdentifiers.some(unicodeId => token.text === unicodeId)
+        );
+        
+        assert.ok(foundUnicodeIds.length > 0, 'Expected to find Unicode identifiers in the token stream');
+        
+        console.log('    ✅ Successfully parsed VBA code with Unicode identifiers (accented characters)');
+        console.log(`    📝 Found ${foundUnicodeIds.length} Unicode identifiers: ${foundUnicodeIds.map(t => t.text).join(', ')}`);
+    });
     
 
 });
