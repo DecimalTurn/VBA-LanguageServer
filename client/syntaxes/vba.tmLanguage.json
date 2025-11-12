@@ -537,7 +537,7 @@
                 },
                 "goToGoSubReturnStatement": {
                   "name": "meta.goToGoSubReturnStatement.vba",
-                  "match": "(?i)\\b(gosub|return|goto)(?:\\s+([a-z][a-z0-9_]*|\\d+))?\\b",
+                  "match": "(?i)\\b(gosub|return|goto)(?:\\s+([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*|\\d+))?\\b",
                   "captures": {
                     "1": {
                       "name": "keyword.control.jump.vba"
@@ -611,7 +611,7 @@
               "match": "(?i)^(#if|#then|#elseif|#else)\\b"
             },
             "directiveConst": {
-              "match": "(?i)^\\s*(#const)\\s+([a-z][a-z0-9_]*)(\\s+=.*)",
+              "match": "(?i)^\\s*(#const)\\s+([A-Za-zÀ-ÖØ-ſ][A-Za-z0-9_À-ÖØ-ſ]*)(\\s+=.*)",
               "captures": {
                 "1": {
                   "name": "constant.language.vba"
@@ -1080,8 +1080,8 @@
     },
     "forLoopIter": {
       "name": "meta.for-iterator-loop.vba",
-      "begin": "(?i)[a-z][\\w]*",
-      "end": "(?i)(?=(next)(['\\n]|\\s+[a-z][a-z_0-9]*|\\s+_))",
+      "begin": "(?i)[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][\\w]*",
+      "end": "(?i)(?=(next)(['\\n]|\\s+[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*|\\s+_))",
       "beginCaptures": {
         "0": {
           "patterns": [
@@ -1316,7 +1316,7 @@
     },
     "AsTypeObject": {
       "name": "support.type.object.$1.vba",
-      "match": "(?i)([a-z][a-z0-9._]*)"
+      "match": "(?i)([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9._\\u00C0-\\u00D6\\u00D8-\\u017F]*)"
     },
     "argumentsSignature": {
       "name": "meta.arguments.signature.vba",
@@ -1402,7 +1402,7 @@
     },
     "argumentSignatureFromParam": {
       "name": "meta.argument-signature.param.vba",
-      "begin": "(?i)[a-z][a-z0-9_]*(\\(\\))?",
+      "begin": "(?i)[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*(\\(\\))?",
       "end": "(?=[,):'\\n])",
       "beginCaptures": {
         "0": {
@@ -1442,7 +1442,7 @@
     },
     "argumentSignatureFromTypeName": {
       "name": "meta.argument-signature.type.vba",
-      "begin": "(?i)([a-z][a-z0-9._]*)",
+      "begin": "(?i)([A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9._\\u00C0-\\u00D6\\u00D8-\\u017F]*)",
       "end": "(?=[,):'\\n])",
       "beginCaptures": {
         "0": {
@@ -2125,7 +2125,7 @@
           ]
         },
         "methodDeclarationIdentifier": {
-          "begin": "(?i)[a-z][a-z0-9_]*",
+          "begin": "(?i)[A-Za-z\\u00C0-\\u00D6\\u00D8-\\u017F][A-Za-z0-9_\\u00C0-\\u00D6\\u00D8-\\u017F]*",
           "end": "(?=[)':\\n])",
           "beginCaptures": {
             "0": {
