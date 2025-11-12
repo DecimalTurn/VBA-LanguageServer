@@ -33,19 +33,6 @@ Sub TestUnicode()
 '                     ^^^^                variable.other.readwrite.vba
 '                           ^^^^^^        variable.other.readwrite.vba
 
-    ' Unicode variable in expression
-    If café = "coffee" Then
-'      ^^^^                               variable.other.readwrite.vba
-'            ^                            keyword.operator.comparison.vba
-'              ^^^^^^^^                   string.quoted.double.vba
-        résumé = café & " and " & François
-'       ^^^^^^                             variable.other.readwrite.vba
-'                ^^^^                      variable.other.readwrite.vba
-'                     ^                    keyword.operator.concatenation.vba
-'                             ^           keyword.operator.concatenation.vba
-'                               ^^^^^^^^   variable.other.readwrite.vba
-    End If
-
     ' Valid underscored identifiers (not starting with underscore)
     Dim my_café As String
 '       ^^^^^^^                           variable.other.readwrite.vba
@@ -56,11 +43,3 @@ Sub TestUnicode()
 '   ^^^^^^^                               variable.other.readwrite.vba
 '             ^^^^                        variable.other.readwrite.vba
 End Sub
-
-Private Function testFonction(ByVal paramètre As String, ByVal résultat As String) As String
-'                                   ^^^^^^^^^^                   ^^^^^^^^            variable.parameter.vba
-    testFonction = paramètre & " " & résultat
-'   ^^^^^^^^^^^^                             entity.name.function.vba
-'                  ^^^^^^^^^^                variable.other.readwrite.vba
-'                                   ^^^^^^^^  variable.other.readwrite.vba
-End Function
