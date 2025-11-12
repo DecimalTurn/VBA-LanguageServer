@@ -3523,9 +3523,9 @@ MACRO_LINE
     ) -> channel(HIDDEN)
     ;
 
-// identifier
+// identifier  
 IDENTIFIER
-    : [\p{L}][\p{M}0-9_]* 
+    : [A-Za-z_\u00C0-\u00D6\u00D8-\u017F][A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F]*
     ;
 
 FOREIGN_NAME
