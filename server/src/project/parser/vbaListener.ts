@@ -81,6 +81,7 @@ import {
     PositionalParamElement,
     EnumMemberDeclarationElement,
     VariableDeclarationStatementElement,
+    UnresolvedTypeReferenceElement,
 } from '../elements/typing';
 import {
     SubDeclarationElement,
@@ -376,11 +377,58 @@ export class VbaListener extends vbaListener {
         if (this.verbose) Services.logger.debug(`${source}: ${ctx.getText()}`, this.parserStateStack.length);
         const nameElement = this.parserState.nameElements.at(-1);
         if (!nameElement) {
+            // Check if this is a type reference in a variable declaration
+            if (this.isTypeReference(ctx)) {
+                this.handleUnresolvedTypeReference(ctx);
+                return;
+            }
             Services.logger.error(`Cannot add name ${ctx.getText()} in ${this.document.name}`, this.parserStateStack.length);
             return;
         }
 
         nameElement.addName(ctx);
+    }
+
+    /**
+     * Checks if the given context represents a type reference (e.g., in variable declarations)
+     */
+    private isTypeReference(ctx: ParserRuleContext): boolean {
+        // Check if we're in a variable declaration context by walking up the parent chain
+        let parent = ctx.parent;
+        while (parent) {
+            // Direct variable declaration context
+            if (parent instanceof VariableDeclarationContext) {
+                return true;
+            }
+            
+            // Check for other contexts where types are referenced
+            const parentTypeName = parent.constructor.name;
+            if (parentTypeName === 'TypeExpressionContext' || 
+                parentTypeName === 'AsClauseContext' ||
+                parentTypeName === 'AsTypeContext' ||
+                parentTypeName === 'TypeSpecContext' ||
+                parentTypeName === 'ClassTypeNameContext' ||
+                parentTypeName === 'DefinedTypeExpressionContext') {
+                return true;
+            }
+            
+            parent = parent.parent;
+        }
+        return false;
+    }
+
+    /**
+     * Handles unresolved type references by creating a placeholder element
+     */
+    private handleUnresolvedTypeReference(ctx: UnrestrictedNameContext | SimpleNameExpressionContext | AmbiguousIdentifierContext): void {
+        if (this.verbose) Services.logger.debug(`Creating unresolved type reference for ${ctx.getText()}`, this.parserStateStack.length);
+        
+        // Create a placeholder element for external type references
+        const element = new UnresolvedTypeReferenceElement(ctx, this.document.textDocument);
+        this.document.registerElement(element);
+        
+        // Log as debug instead of error to reduce noise
+        Services.logger.debug(`Registered unresolved type reference: ${ctx.getText()} in ${this.document.name}`);
     }
 
     private pushNameElement(ctx: NameExpressionContext): void {

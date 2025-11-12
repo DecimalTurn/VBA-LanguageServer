@@ -5,6 +5,7 @@ import { SymbolKind } from 'vscode-languageserver';
 // Antlr
 import { ParserRuleContext } from 'antlr4ng';
 import {
+	AmbiguousIdentifierContext,
 	ArrayDesignatorContext,
 	ArrayDimContext,
 	AsClauseContext,
@@ -15,6 +16,7 @@ import {
 	PositionalParamContext,
 	PublicEnumDeclarationContext,
 	PublicTypeDeclarationContext,
+	SimpleNameExpressionContext,
 	TypeExpressionContext,
 	TypeSuffixContext,
 	UdtDeclarationContext,
@@ -308,4 +310,24 @@ export class TypeSuffixElement extends BaseRuleSyntaxElement<TypeSuffixContext> 
 		);
 		return this.diagnosticCapability.diagnostics;
 	};
+}
+
+
+/**
+ * Element to handle unresolved type references like external COM objects, DLL types, etc.
+ * These types are not defined in the source code but are available through references.
+ */
+export class UnresolvedTypeReferenceElement extends BaseRuleSyntaxElement<UnrestrictedNameContext | SimpleNameExpressionContext | AmbiguousIdentifierContext> implements HasSymbolInformationCapability, HasSemanticTokenCapability {
+	identifierCapability: IdentifierCapability;
+	symbolInformationCapability: SymbolInformationCapability;
+	semanticTokenCapability: SemanticTokenCapability;
+
+	constructor(ctx: UnrestrictedNameContext | SimpleNameExpressionContext | AmbiguousIdentifierContext, doc: TextDocument) {
+		super(ctx, doc);
+		this.identifierCapability = new IdentifierCapability(this, () => ctx);
+		this.symbolInformationCapability = new SymbolInformationCapability(this, SymbolKind.Class);
+		this.semanticTokenCapability = new SemanticTokenCapability(this, SemanticTokenTypes.class, []);
+		this.scopeItemCapability = new ScopeItemCapability(this, ScopeType.TYPE);
+		this.scopeItemCapability.isPublicScope = true; // External types are typically public
+	}
 }
