@@ -67,6 +67,11 @@ repository:
     match: (?<=\s)_\s*\n
 
   # Reusable identifier patterns with Unicode support
+  # Character classes for Unicode identifiers (Latin-1 Supplement + Latin Extended-A):
+  # - First char: [A-Za-z\u00C0-\u00D6\u00D8-\u017F] (letters + accented chars, no leading underscore in VBA)
+  # - Subsequent: [A-Za-z0-9_\u00C0-\u00D6\u00D8-\u017F] (letters + digits + underscore + accented chars)
+  # Unicode ranges: \u00C0-\u00D6 (À-Ö), \u00D8-\u017F (Ø-ÿ)
+
   identifierFirstChar:
     match: '[A-Za-z\u00C0-\u00D6\u00D8-\u017F]'
 
