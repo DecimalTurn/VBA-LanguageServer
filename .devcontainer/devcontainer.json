@@ -1,0 +1,20 @@
+{
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+	"features": {
+		// Java needed to run ANTLR
+		"ghcr.io/roul/devcontainer-features/mise-java:1": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"dbaeumer.vscode-eslint",
+				"EditorConfig.EditorConfig",
+				"mike-lischke.vscode-antlr4",
+				"RedCMD.tmlanguage-syntax-highlighter",
+				"github.vscode-github-actions"
+			]
+		}
+	},
+	//If not working properly, we might need to: chmod +x ./.devcontainer/setup.sh
+	"postCreateCommand": "./.devcontainer/setup.sh"
+}
