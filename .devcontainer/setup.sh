@@ -50,6 +50,7 @@ npm run antlr
 # For some reason, antlr4ng writes to a different location on the VM
 # than it does locally, preventing compile. Command added to move the generated files.
 mv ./server/src/antlr/out/server/src/antlr/* ./server/src/antlr/out
+npm run build
 
 touch "$SETUP_SUCCESS_MARKER"
 
