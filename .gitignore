@@ -9,7 +9,9 @@ dist/*
 node_modules
 sample*/**
 template*
+local/*
 
 # Workspace settings
 .vscode-test
 .vscode/settings.json
+
