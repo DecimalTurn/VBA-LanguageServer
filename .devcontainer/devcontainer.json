@@ -15,5 +15,6 @@
 			]
 		}
 	},
-	"postCreateCommand": "bash ./.devcontainer/setup.sh"
+	"postCreateCommand": "bash ./.devcontainer/setup.sh",
+	"postAttachCommand": "test -f ./.codespace-setup-success && printf '✅ Setup complete! You can now run \"\\033[34mnpm run testsh\\033[0m\" to execute e2e tests in the headless environment.\\n'"
 }
