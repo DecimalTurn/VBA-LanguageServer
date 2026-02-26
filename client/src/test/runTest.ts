@@ -9,11 +9,14 @@ import { runTests } from '@vscode/test-electron';
 
 async function main() {
 	try {
+		const workspaceRootFromCwd = process.cwd();
 		const workspaceRootFromDist = path.resolve(__dirname, '../../../../');
-		const workspaceRootFromSrc = path.resolve(__dirname, '../../../');
-		const workspaceRoot = fs.existsSync(path.join(workspaceRootFromDist, 'package.json'))
-			? workspaceRootFromDist
-			: workspaceRootFromSrc;
+		const workspaceRoot = fs.existsSync(path.join(workspaceRootFromCwd, 'package.json'))
+			? workspaceRootFromCwd
+			: workspaceRootFromDist;
+		const testsDir = process.env.CODE_TESTS_PATH
+			? path.resolve(process.env.CODE_TESTS_PATH)
+			: path.resolve(workspaceRoot, 'dist/client/out/test');
 
 		// The folder containing the Extension Manifest package.json
 		// Passed to `--extensionDevelopmentPath`
@@ -21,7 +24,7 @@ async function main() {
 
 		// The path to test runner
 		// Passed to --extensionTestsPath
-		const extensionTestsPath = path.resolve(workspaceRoot, 'dist/client/out/test/index.js');
+		const extensionTestsPath = path.resolve(testsDir, 'index.js');
 
 		// Download VS Code, unzip it and run the integration test
 		await runTests({ extensionDevelopmentPath, extensionTestsPath });

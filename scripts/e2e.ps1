@@ -1,3 +1,6 @@
-$ENV:CODE_TESTS_PATH="$(Get-Location)\dist\client\out\test"
-$ENV:CODE_TESTS_WORKSPACE="$(Get-Location)\test\fixtures"
-Invoke-Expression "node $(Get-Location)\dist\client\out\test\runTest.js"
+$root = (Get-Location).Path
+$ENV:CODE_TESTS_PATH = Join-Path $root "dist/client/out/test"
+$ENV:CODE_TESTS_WORKSPACE = Join-Path $root "test/fixtures"
+
+npm run build
+node (Join-Path $ENV:CODE_TESTS_PATH "runTest.js")
