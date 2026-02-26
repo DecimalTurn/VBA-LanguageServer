@@ -8,6 +8,7 @@
 		"vscode": {
 			"extensions": [
 				"dbaeumer.vscode-eslint",
+				"connor4312.esbuild-problem-matchers",
 				"EditorConfig.EditorConfig",
 				"mike-lischke.vscode-antlr4",
 				"RedCMD.tmlanguage-syntax-highlighter",
