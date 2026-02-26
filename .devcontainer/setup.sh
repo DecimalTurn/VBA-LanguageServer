@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+SETUP_SUCCESS_MARKER="/workspaces/VBA-LanguageServer/.codespace-setup-success"
+rm -f "$SETUP_SUCCESS_MARKER"
+
 # Run from repository root when executed as a postCreateCommand
 cd "$(pwd)"
 
@@ -47,6 +50,8 @@ npm run antlr
 # For some reason, antlr4ng writes to a different location on the VM
 # than it does locally, preventing compile. Command added to move the generated files.
 mv ./server/src/antlr/out/server/src/antlr/* ./server/src/antlr/out
+
+touch "$SETUP_SUCCESS_MARKER"
 
 echo "Setup complete!"
 echo "You can now run 'npm run testsh' to execute e2e tests in the headless environment."
