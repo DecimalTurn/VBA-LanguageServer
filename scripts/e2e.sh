@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-export CODE_TESTS_PATH="$(pwd)/dist/client/out/test"
-export CODE_TESTS_WORKSPACE="$(pwd)/test/fixtures"
+ROOT_DIR="$(pwd)"
+TEST_ENTRYPOINT="$ROOT_DIR/dist/client/out/test/runTest.js"
 
-node "$(pwd)/dist/client/out/test/runTest"
+export CODE_TESTS_PATH="$ROOT_DIR/dist/client/out/test"
+export CODE_TESTS_WORKSPACE="$ROOT_DIR/test/fixtures"
+
+node "$TEST_ENTRYPOINT"
