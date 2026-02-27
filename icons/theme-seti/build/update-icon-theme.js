@@ -56,6 +56,14 @@ const inheritIconFromLanguage = {
 	"skill": 'markdown'
 };
 
+const languageFallbackExtensions = {
+	"css": ['css'],
+	"html": ['html', 'htm'],
+	"json": ['json'],
+	"markdown": ['md', 'markdown'],
+	"php": ['php']
+};
+
 const ignoreExtAssociation = {
 	"properties": true
 };
@@ -258,6 +266,11 @@ function getLanguageMappings() {
 	}
 	for (const languageId in nonBuiltInLanguages) {
 		langMappings[languageId] = nonBuiltInLanguages[languageId];
+	}
+	for (const languageId in languageFallbackExtensions) {
+		if (!langMappings[languageId]) {
+			langMappings[languageId] = { extensions: languageFallbackExtensions[languageId] };
+		}
 	}
 	return langMappings;
 }
