@@ -1,0 +1,165 @@
+# This workflow creates a release draft with a .vsix package attached
+
+name: Pre-release
+
+on:
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  pre-release:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write  # Required to create releases
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Fetch tags
+      run: |
+        git fetch --tags
+        echo "All tags in repository:"
+        git tag -l --sort=-version:refname
+        echo ""
+        echo "Tags matching alt pattern:"
+        git tag -l "*-alt.*" --sort=-version:refname || echo "No alt tags found"
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Update package version with pre-release suffix
+      id: version
+      run: |
+        # Get current version from package.json
+        BASE_VERSION=$(node -p "require('./package.json').version")
+        BRANCH_NAME="${{ github.ref_name }}"
+        
+        # Find the latest pre-release tag for this branch pattern
+        # Look for tags in format: v*-branch.* or *-branch.*
+        LATEST_TAG=$(git tag -l "*-${BRANCH_NAME}.*" --sort=-version:refname | head -n1)
+        
+        echo "🔍 Looking for existing tags with pattern: *-${BRANCH_NAME}.*"
+        echo "📋 All matching tags:"
+        git tag -l "*-${BRANCH_NAME}.*" --sort=-version:refname || echo "No matching tags found"
+        echo "🏷️ Latest tag found: ${LATEST_TAG:-'(none)'}"
+        
+        if [ -z "$LATEST_TAG" ]; then
+          # No previous pre-release found, start with 1
+          PRE_RELEASE_NUMBER="1"
+          echo "✨ No previous pre-release found, starting with ${BRANCH_NAME}.1"
+        else
+          # Extract number from tag (format: v1.2.3-alt.X or 1.2.3-alt.X)
+          CURRENT_NUMBER=$(echo "$LATEST_TAG" | grep -o "\-${BRANCH_NAME}\.[0-9]\+" | sed "s/-${BRANCH_NAME}\.//")
+          if [ -z "$CURRENT_NUMBER" ]; then
+            # Fallback if pattern doesn't match
+            PRE_RELEASE_NUMBER="1"
+            echo "⚠️ Could not extract number from tag, falling back to ${BRANCH_NAME}.1"
+          else
+            # Increment the number
+            PRE_RELEASE_NUMBER=$((CURRENT_NUMBER + 1))
+            echo "🔢 Found existing ${BRANCH_NAME}.${CURRENT_NUMBER}, incrementing to ${BRANCH_NAME}.${PRE_RELEASE_NUMBER}"
+          fi
+        fi
+        
+        # Create new version with pre-release suffix
+        NEW_VERSION="${BASE_VERSION}-${BRANCH_NAME}.${PRE_RELEASE_NUMBER}"
+        
+        # Update package.json
+        node -e "
+          const fs = require('fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          pkg.version = '$NEW_VERSION';
+          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+        "
+        
+        echo "base_version=$BASE_VERSION" >> $GITHUB_OUTPUT
+        echo "pre_release_number=$PRE_RELEASE_NUMBER" >> $GITHUB_OUTPUT
+        echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+        
+        echo ""
+        echo "📦 Version Summary:"
+        echo "   Base version: $BASE_VERSION"
+        echo "   Branch: $BRANCH_NAME"
+        echo "   Pre-release number: $PRE_RELEASE_NUMBER"
+        echo "   New version: $NEW_VERSION"
+        echo "   Tag will be: v$NEW_VERSION"
+        echo ""
+        echo "✅ Updated version from $BASE_VERSION to $NEW_VERSION"
+        
+    - name: Build extension
+      run: npm run package
+      
+    - name: Install vsce
+      run: npm install -g vsce
+      
+    - name: Package extension
+      run: npm run vsix
+      
+    - name: Get package info
+      id: package
+      run: |
+        PACKAGE_NAME=$(node -p "require('./package.json').name")
+        PACKAGE_VERSION=$(node -p "require('./package.json').version")
+        echo "name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+        echo "version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
+        echo "vsix_name=$PACKAGE_NAME-$PACKAGE_VERSION.vsix" >> $GITHUB_OUTPUT
+        
+    - name: Generate release tag
+      id: tag
+      run: |
+        if [[ "${{ github.ref_type }}" == "tag" ]]; then
+          # If triggered by a tag, use that tag
+          echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+        else
+          # Use the updated version as the tag
+          echo "tag=v${{ steps.version.outputs.new_version }}" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Create pre-release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.tag.outputs.tag }}
+        release_name: Pre-release ${{ steps.tag.outputs.tag }}
+        body: |
+          🚀 **Pre-release build**
+          
+          This is an automated pre-release build from branch `${{ github.ref_name }}`.
+          
+          **Package Info:**
+          - Base Version: ${{ steps.version.outputs.base_version }}
+          - Pre-release Version: ${{ steps.package.outputs.version }}
+          - Pre-release Number: ${{ steps.version.outputs.pre_release_number }}
+          - Commit: ${{ github.sha }}
+          - Branch: ${{ github.ref_name }}
+          - Build Time: ${{ github.run_id }}
+          
+          **Installation:**
+          1. Download the `.vsix` file from the assets below
+          2. In VS Code, go to Extensions view (Ctrl+Shift+X)
+          3. Click the "..." menu and select "Install from VSIX..."
+          4. Select the downloaded `.vsix` file
+          
+          ⚠️ **Note:** This is a pre-release version and may contain bugs or incomplete features.
+        draft: false
+        prerelease: true
+        
+    - name: Upload VSIX asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./${{ steps.package.outputs.vsix_name }}
+        asset_name: ${{ steps.package.outputs.vsix_name }}
+        asset_content_type: application/zip
