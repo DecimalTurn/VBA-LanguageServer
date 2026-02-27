@@ -175,27 +175,29 @@ export abstract class BaseProjectDocument {
 			return;
 		}
 
-		// Parse the document.
-		await (new SyntaxParser(Services.logger)).parse(token, this);
-		const projectScope = this.currentScope.project;
-		const buildScope = projectScope?.isDirty ? projectScope : this.currentScope;
-		buildScope.build();
-		buildScope.resolveUnused();
+		try {
+			// Parse the document.
+			await (new SyntaxParser(Services.logger)).parse(token, this);
+			const projectScope = this.currentScope.project;
+			const buildScope = projectScope?.isDirty ? projectScope : this.currentScope;
+			buildScope.build();
+			buildScope.resolveUnused();
 
-		// Evaluate the diagnostics.
-		const diagnostics = this.hasDiagnosticElements
-			.map(e => e.diagnosticCapability.evaluate())
-			.flat();
+			// Evaluate the diagnostics.
+			const diagnostics = this.hasDiagnosticElements
+				.map(e => e.diagnosticCapability.evaluate())
+				.flat();
 
-		// Ensure diagnostics aren't reported twice.
-		// TODO: Redesign diagnostics so this isn't required.
-		diagnostics.forEach(diagnostic => {
-			if (!this.hasDiagnostic(diagnostic)) {
-				this.diagnostics.push(diagnostic);
-			}
-		});
-
-		this._isBusy = false;
+			// Ensure diagnostics aren't reported twice.
+			// TODO: Redesign diagnostics so this isn't required.
+			diagnostics.forEach(diagnostic => {
+				if (!this.hasDiagnostic(diagnostic)) {
+					this.diagnostics.push(diagnostic);
+				}
+			});
+		} finally {
+			this._isBusy = false;
+		}
 	};
 
 	async formatParse(token: CancellationToken): Promise<VbaFmtListener | undefined> {

@@ -412,7 +412,13 @@ class WorkspaceEvents {
 	private async onDocumentSymbolAsync(params: DocumentSymbolParams, token: CancellationToken): Promise<SymbolInformation[]> {
 		Services.logger.debug('[event] onDocumentSymbol');
 		const document = await this.getParsedProjectDocument(params.textDocument.uri, 0, token);
-		return document?.languageServerSymbolInformation() ?? [];
+		const symbols = document?.languageServerSymbolInformation() ?? [];
+
+		if (document && symbols.length === 0 && document.textDocument.getText().trim().length > 0) {
+			Services.logger.error(`No document symbols produced for ${document.name}`);
+		}
+
+		return symbols;
 	}
 
 	private async onFoldingRangesAsync(params: FoldingRangeParams, token: CancellationToken): Promise<FoldingRange[] | undefined> {
