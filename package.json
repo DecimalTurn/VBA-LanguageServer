@@ -27,7 +27,7 @@
 	},
 	"main": "dist/client/out/extension",
 	"browser": "dist/web/webextension.js",
-	"activationEvents": [],
+	"activationEvents": ["onLanguage:vba"],
 	"contributes": {
 		"languages": [
 			{
