@@ -4,6 +4,10 @@
 
 	// List of extensions which should be recommended for users of this workspace.
 	"recommendations": [
-		"dbaeumer.vscode-eslint"
+		"dbaeumer.vscode-eslint",
+		"connor4312.esbuild-problem-matchers",
+		"editorconfig.editorconfig",
+		"mike-lischke.vscode-antlr4",
+		"github.vscode-github-actions"
 	]
 }

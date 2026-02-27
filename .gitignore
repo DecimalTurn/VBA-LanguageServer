@@ -4,6 +4,7 @@ dist/*
 *.vsix
 *.tsbuildinfo
 *.log
+.codespace-setup-success
 
 # Resources
 node_modules
