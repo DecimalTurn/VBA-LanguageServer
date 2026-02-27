@@ -41,5 +41,8 @@ client/node_modules/**
 # Server node modules
 server/node_modules/**
 
+# Icons node modules
+icons/**/node_modules/**
+
 # Extension bundle
 !dist/**
