@@ -1,5 +1,6 @@
 # Generated files.
 dist/*
+server/out/*
 **/antlr/*/
 *.vsix
 *.tsbuildinfo
