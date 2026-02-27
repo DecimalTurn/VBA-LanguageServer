@@ -49,7 +49,19 @@ const inheritIconFromLanguage = {
 	"jsonl": 'json',
 	"postcss": 'css',
 	"django-html": 'html',
-	"blade": 'php'
+	"blade": 'php',
+	"prompt": 'markdown',
+	"instructions": 'markdown',
+	"chatagent": 'markdown',
+	"skill": 'markdown'
+};
+
+const languageFallbackExtensions = {
+	"css": ['css'],
+	"html": ['html', 'htm'],
+	"json": ['json'],
+	"markdown": ['md', 'markdown'],
+	"php": ['php']
 };
 
 const ignoreExtAssociation = {
@@ -254,6 +266,11 @@ function getLanguageMappings() {
 	}
 	for (const languageId in nonBuiltInLanguages) {
 		langMappings[languageId] = nonBuiltInLanguages[languageId];
+	}
+	for (const languageId in languageFallbackExtensions) {
+		if (!langMappings[languageId]) {
+			langMappings[languageId] = { extensions: languageFallbackExtensions[languageId] };
+		}
 	}
 	return langMappings;
 }

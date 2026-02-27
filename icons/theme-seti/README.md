@@ -1,10 +1,10 @@
 # theme-seti
 
-This is an icon theme that uses the icons from a fork of [`seti-ui`](https://github.com/jesseweed/seti-ui).
+This is an icon theme that uses the icons from a [VBA-specific fork](https://github.com/DecimalTurn/seti-ui) of [`seti-ui`](https://github.com/jesseweed/seti-ui).
 
 ## Updating icons
 
-There is script that can be used to update icons, [./build/update-icon-theme.js](build/update-icon-theme.js).
+There is a script that can be used to update icons, [./build/update-icon-theme.js](build/update-icon-theme.js), it is almost identical to the script used by VS Code to import seti-ui ([here](https://github.com/microsoft/vscode/blob/main/extensions/theme-seti/build/update-icon-theme.js)).
 
 To run this script, run `npm run update` from the `theme-seti` directory.
 
