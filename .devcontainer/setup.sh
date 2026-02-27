@@ -25,16 +25,34 @@ sudo apt install -y \
     libgtk-3-0t64 \
     libglib2.0-0t64 \
     libatspi2.0-0t64 \
-    xvfb
+    xvfb \
+    x11-utils \
+    xauth
 
-# Start Xvfb for headless testing (if not already running)
+# Set up virtual display for headless testing if not already set
 echo "Setting up virtual display for headless testing..."
-export DISPLAY=:99
-if ! pgrep -x "Xvfb" > /dev/null; then
-    Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-    echo "Started Xvfb on display :99"
-else
-    echo "Xvfb already running"
+if [ -z "${DISPLAY:-}" ]; then
+    export DISPLAY=:99
+    # Start Xvfb if not already running
+    if ! pgrep -x "Xvfb" > /dev/null; then
+        echo "Starting Xvfb for headless testing..."
+        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        XVFB_PID=$!
+        sleep 3
+
+        # Verify Xvfb started successfully
+        if ! kill -0 "$XVFB_PID" 2>/dev/null; then
+            echo "Failed to start Xvfb"
+            exit 1
+        fi
+        echo "Xvfb started with PID $XVFB_PID on display :99"
+    fi
+fi
+
+# Verify display is available
+if ! xdpyinfo -display :99 >/dev/null 2>&1; then
+    echo "Display :99 is not available, trying xvfb-run approach..."
+    exec xvfb-run -a node "$(pwd)/dist/client/out/test/runTest"
 fi
 
 # Add DISPLAY environment variable to .bashrc for future sessions
@@ -55,6 +73,7 @@ npm run build
 touch "$SETUP_SUCCESS_MARKER"
 
 echo "Setup complete!"
+echo "Running with DISPLAY=$DISPLAY"
 echo "You can now run 'npm run testsh' to execute e2e tests in the headless environment."
 
 # Logs: /workspaces/.codespaces/.persistedshare/creation.log
