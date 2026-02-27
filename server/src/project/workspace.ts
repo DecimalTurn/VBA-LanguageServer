@@ -466,7 +466,6 @@ class WorkspaceEvents {
 			connection.workspace.onDidChangeWorkspaceFolders(e =>
 				this.onDidChangeWorkspaceFolders(e)
 			);
-			connection.client.register(DidChangeConfigurationNotification.type, undefined);
 		}
 
 		// Read workspace folders if we have them.
