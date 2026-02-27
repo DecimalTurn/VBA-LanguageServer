@@ -164,7 +164,8 @@
 		"test:vsc:unit": "vscode-test",
 		"test:antlr:unit": "tsc --project server/tsconfig.json && npx mocha server/out/test/**/*.test.js",
 		"testsh": "sh ./scripts/e2e.sh",
-		"testps": "powershell ./scripts/e2e.ps1"
+		"testps": "powershell ./scripts/e2e.ps1",
+		"vsix": "vsce package"
 	},
 	"dependencies": {
 		"antlr4ng": "^3.0.16",
@@ -179,6 +180,7 @@
 		"@typescript-eslint/parser": "^8.29.0",
 		"@vscode/test-cli": "^0.0.10",
 		"@vscode/test-electron": "^2.5.2",
+		"@vscode/vsce": "^3.7.1",
 		"antlr4ng-cli": "^2.0.0",
 		"esbuild": "^0.25.4",
 		"eslint": "^9.27.0",
