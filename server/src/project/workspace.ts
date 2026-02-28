@@ -116,7 +116,6 @@ export class Workspace implements IWorkspace {
 		}
 
 		// Set up parser and dummy token because we won't cancel this.
-		const parser = new SyntaxParser(this.logger);
 		const token = new CancellationTokenSource().token;
 
 		// Handle each file in the workspace.
@@ -134,7 +133,8 @@ export class Workspace implements IWorkspace {
 				const textDocument = TextDocument.create(`${normalisedUri}`, 'vba', 1, file);
 				const projectDocument = BaseProjectDocument.create(textDocument);
 				this.projectDocuments.set(normalisedUri, projectDocument);
-				await parser.parse(token, projectDocument);
+				await projectDocument.parse(token);
+				this.connection.sendDiagnostics(projectDocument.languageServerDiagnostics());
 				this.logger.info(`Parsed ${projectDocument.name}`, 1);
 			} catch (e) {
 				// Log errors and anything else without failing.
@@ -284,17 +284,19 @@ class WorkspaceEvents {
 		// Handle token cancellation.
 		if (token.isCancellationRequested) return undefined;
 
+		const normalisedUri = uri.toFilePath().toFileUri();
+
 		let cancelled = false;
 		token.onCancellationRequested(() => cancelled = true);
 
 		let document: BaseProjectDocument | undefined;
-		document = this.projectDocuments.get(uri);
+		document = this.projectDocuments.get(normalisedUri);
 
 		// Ensure we have the appropriately versioned document.
 		while (!document || document.textDocument.version < version) {
 			if (cancelled) return undefined;
 			await sleep(5);
-			document = this.projectDocuments.get(uri);
+			document = this.projectDocuments.get(normalisedUri);
 		}
 
 		// Return nothing if the document version is newer than requested.
@@ -411,7 +413,8 @@ class WorkspaceEvents {
 
 	private async onDocumentSymbolAsync(params: DocumentSymbolParams, token: CancellationToken): Promise<SymbolInformation[]> {
 		Services.logger.debug('[event] onDocumentSymbol');
-		const document = await this.getParsedProjectDocument(params.textDocument.uri, 0, token);
+		const normalisedUri = params.textDocument.uri.toFilePath().toFileUri();
+		const document = await this.getParsedProjectDocument(normalisedUri, 0, token);
 		const symbols = document?.languageServerSymbolInformation() ?? [];
 
 		if (document && symbols.length === 0 && document.textDocument.getText().trim().length > 0) {
@@ -578,9 +581,14 @@ class WorkspaceEvents {
 		Services.logger.debug('[event] onDidOpen');
 		this.printDocumentInformation(document);
 		const normalisedUri = document.uri.toFilePath().toFileUri();
-		if (this.projectDocuments.has(normalisedUri)) {
-			Services.workspace.openDocument(document);
+
+		if (!this.projectDocuments.has(normalisedUri)) {
+			const projectDocument = BaseProjectDocument.create(document);
+			this.projectDocuments.set(normalisedUri, projectDocument);
+			Services.workspace.parseDocument(projectDocument);
 		}
+
+		Services.workspace.openDocument(document);
 	}
 
 	/**
