@@ -273,13 +273,13 @@ class WorkspaceEvents {
 		this.initialiseDocumentsEvents();
 		this.documents.listen(connection);
 	}
-/**
- * Returns a project document that matches the requested version, waiting for parsing to complete if necessary.
- * @param uri The URI of the document.
- * @param version The version of the document to match. If 0, will return the latest version of the document after parsing is complete.
- * @param token A cancellation token to cancel the operation.
- * @returns A promise that resolves to the matching project document or undefined if not found or cancelled.
- */
+	/**
+	 * Returns a project document that matches the requested version, waiting for parsing to complete if necessary.
+	 * @param uri The URI of the document.
+	 * @param version The version of the document to match. If 0, will return the latest version of the document after parsing is complete.
+	 * @param token A cancellation token to cancel the operation.
+	 * @returns A promise that resolves to the matching project document or undefined if not found or cancelled.
+	 */
 	private async getParsedProjectDocument(uri: string, version: number, token: CancellationToken): Promise<BaseProjectDocument | undefined> {
 		// Handle token cancellation.
 		if (token.isCancellationRequested) return undefined;
