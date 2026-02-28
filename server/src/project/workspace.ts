@@ -38,11 +38,9 @@ import { sleep, walk } from '../utils/helpers';
 import { Services } from '../injection/services';
 import { getFormattingEdits } from './formatter';
 import { BaseProjectDocument } from './document';
-import { SyntaxParser } from './parser/vbaParser';
 import { VbaFmtListener } from './parser/vbaListener';
 import { hasWorkspaceConfigurationCapability } from '../capabilities/workspaceFolder';
 import { Logger, ILanguageServer, IWorkspace } from '../injection/interface';
-import { returnDefaultOnCancelClientRequest } from '../utils/wrappers';
 import { ScopeType, ScopeItemCapability } from '../capabilities/capabilities';
 
 export interface ExtensionConfiguration {
@@ -324,9 +322,6 @@ class WorkspaceEvents {
 	}
 
 	private initialiseConnectionEvents(connection: _Connection) {
-		const cancellableOnDocSymbol = returnDefaultOnCancelClientRequest(
-			(p: DocumentSymbolParams, t) => this.onDocumentSymbolAsync(p, t), [], 'Document Symbols');
-
 		connection.onCodeAction(async (params, token) => this.onCodeActionRequest(params, token));
 		connection.onCompletion(params => this.onCompletion(params));
 		connection.onCompletionResolve(item => this.onCompletionResolve(item));
@@ -335,7 +330,7 @@ class WorkspaceEvents {
 		connection.onDidChangeWatchedFiles(params => this.onDidChangeWatchedFiles(params));
 		connection.onDidCloseTextDocument(params => { Services.logger.debug('[event] onDidCloseTextDocument'); Services.logger.debug(JSON.stringify(params), 1); });
 		connection.onDocumentFormatting(async (params, token) => await this.onDocumentFormatting(params, token));
-		connection.onDocumentSymbol(async (params, token) => await cancellableOnDocSymbol(params, token));
+		connection.onDocumentSymbol(async (params, token) => await this.onDocumentSymbolAsync(params, token));
 		connection.onHover(params => this.onHover(params));
 		connection.onInitialized(() => this.onInitialized());
 		connection.onRenameRequest((params, token) => this.onRenameRequest(params, token));
