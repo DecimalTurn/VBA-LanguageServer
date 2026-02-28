@@ -300,6 +300,12 @@ class WorkspaceEvents {
 		while (document.isBusy) {
 			if (cancelled) return undefined;
 			await sleep(5);
+			// A didChange can replace the tracked document instance while an older
+			// request is still waiting; re-read the latest instance to avoid stale waits
+			const latestDocument = this.projectDocuments.get(uri);
+			if (latestDocument) {
+				document = latestDocument;
+			}
 		}
 
 		return document;
