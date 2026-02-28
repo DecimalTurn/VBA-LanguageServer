@@ -27,7 +27,9 @@
 	},
 	"main": "dist/client/out/extension",
 	"browser": "dist/web/webextension.js",
-	"activationEvents": ["onLanguage:vba"],
+	"activationEvents": [
+		"onLanguage:vba"
+	],
 	"contributes": {
 		"languages": [
 			{
@@ -183,6 +185,7 @@
 		"@vscode/test-electron": "^2.5.2",
 		"@vscode/vsce": "^3.7.1",
 		"antlr4ng-cli": "^2.0.0",
+		"dedent": "^1.7.1",
 		"esbuild": "^0.25.4",
 		"eslint": "^9.27.0",
 		"js-yaml": "^4.1.0",
