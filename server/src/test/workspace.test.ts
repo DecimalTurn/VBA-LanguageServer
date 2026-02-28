@@ -7,7 +7,6 @@ import { container } from 'tsyringe';
 import { CancellationTokenSource } from 'vscode-languageserver';
 
 import { Workspace } from '../project/workspace';
-import { ScopeItemCapability, ScopeType } from '../capabilities/capabilities';
 import { ILanguageServer } from '../injection/interface';
 
 function createMockConnection() {
