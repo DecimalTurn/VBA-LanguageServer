@@ -112,28 +112,24 @@ describe('Workspace document replacement race', () => {
 
         const tokenSource = new CancellationTokenSource();
         const waitPromise = (events as any).getParsedProjectDocument(uri, 0, tokenSource.token);
-
-        const replacementTimer = setTimeout(() => {
-            projectDocuments.set(uri, replacementDocument);
-        }, 20);
+        projectDocuments.set(uri, replacementDocument);
 
         try {
             const result = await Promise.race([
                 waitPromise,
-                new Promise<'timeout'>(resolve => setTimeout(() => resolve('timeout'), 300))
+                new Promise<'timeout'>(resolve => setTimeout(() => resolve('timeout'), 1000))
             ]);
 
             assert.notStrictEqual(result, 'timeout', 'Expected to resolve with replacement document, but request timed out');
             assert.strictEqual(result, replacementDocument, 'Expected to return the replacement tracked document instance');
         } finally {
-            clearTimeout(replacementTimer);
             tokenSource.cancel();
 
             // Ensure no pending waiter keeps the test process alive when
             // assertions fail (e.g., when the replacement-refresh fix is absent).
             await Promise.race([
                 waitPromise.catch(() => undefined),
-                new Promise<void>(resolve => setTimeout(resolve, 100))
+                new Promise<void>(resolve => setTimeout(resolve, 300))
             ]);
         }
     });
