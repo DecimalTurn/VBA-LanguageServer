@@ -34,7 +34,7 @@ import {
 import { ParseCancellationException } from 'antlr4ng';
 
 // Project
-import { sleep, walk } from '../utils/helpers';
+import { getMissingSymbolsLogSeverity, sleep, walk } from '../utils/helpers';
 import { Services } from '../injection/services';
 import { getFormattingEdits } from './formatter';
 import { BaseProjectDocument } from './document';
@@ -412,8 +412,17 @@ class WorkspaceEvents {
 		const document = await this.getParsedProjectDocument(normalisedUri, 0, token);
 		const symbols = document?.languageServerSymbolInformation() ?? [];
 
-		if (document && symbols.length === 0 && document.textDocument.getText().trim().length > 0) {
-			Services.logger.error(`No document symbols produced for ${document.name}`);
+		if (document) {
+			switch (getMissingSymbolsLogSeverity(document.textDocument.getText(), symbols)) {
+				case 'error':
+					Services.logger.error(`No document symbols produced for ${document.name}`);
+					break;
+				case 'warn':
+					Services.logger.warn(`No member symbols produced for ${document.name}`);
+					break;
+				default:
+					break;
+			}
 		}
 
 		return symbols;
