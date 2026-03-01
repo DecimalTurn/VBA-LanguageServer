@@ -1019,7 +1019,7 @@ export class ScopeItemCapability {
 
 		const moduleName = normalisedUri.split('/').at(-1)?.split('.').slice(0, -1).join('.');
 		if (!moduleName) {
-			Services.logger.error(`Bad URI or name: ${moduleName} from ${uri}`);
+			Services.logger.error(`Bad URI or name derived from normalised URI: ${normalisedUri} (original URI: ${uri})`);
 			return;
 		}
 
