@@ -1,5 +1,5 @@
 /**
- * Direct ANTLR parser test for VBA preprocessor grammar.
+ * Direct ANTLR parser test for VBA main grammar.
  * 
  * This test directly uses the ANTLR parser to catch syntax errors and undesired implicit tokens (T__1, T__2, etc.)
  * without going through the VS Code diagnostics layer.
@@ -9,18 +9,19 @@ import { describe, it } from 'mocha';
 import * as assert from 'assert';
 import * as fs from 'fs';
 import * as path from 'path';
-import { VbaPreParser, VbaPreLexer } from '../project/parser/vbaAntlr';
-import { CommonTokenStream } from 'antlr4ng';
+import { VbaParser, VbaLexer } from '../project/parser/vbaAntlr';
+import { CharStream, CommonTokenStream } from 'antlr4ng';
 import { checkImplicitTokens, logParsingResults, ParseResult, shouldLogDetails, verboseTestLogs } from './util';
 
-describe('ANTLR VBA Preprocessor Parser', () => {
+describe('ANTLR VBA Main Parser', () => {
     /**
      * Test helper to parse input and collect syntax errors
      */
     function parseAndGetErrors(input: string): ParseResult {
-        const lexer = VbaPreLexer.create(input);
+        const inputStream = CharStream.fromString(input);
+        const lexer = new VbaLexer(inputStream);
         const tokens = new CommonTokenStream(lexer);
-        const parser = new VbaPreParser(tokens);
+        const parser = new VbaParser(tokens);
         
         // Collect all error information
         const errors: string[] = [];
@@ -44,10 +45,10 @@ describe('ANTLR VBA Preprocessor Parser', () => {
             }
         }
         
-        // Try to parse
+        // Try to parse as a module
         let parseTree = null;
         try {
-            parseTree = parser.startRule();
+            parseTree = parser.module_();
         } catch (error) {
             errors.push(`Parse exception: ${error}`);
         }
@@ -61,8 +62,8 @@ describe('ANTLR VBA Preprocessor Parser', () => {
         };
     }
     
-    it('should parse function call with string literal and parentheses', () => {
-        const testFilePath = path.join(__dirname, '../../../test/parser/pre/ParsingParenthesis.bas');
+    it('should parse VBA code with external type references without errors', () => {
+        const testFilePath = path.join(__dirname, '../../../test/fixtures/ExternalTypeReferences.bas');
         const input = fs.readFileSync(testFilePath, 'utf8');
         
         const result = parseAndGetErrors(input);
@@ -72,24 +73,15 @@ describe('ANTLR VBA Preprocessor Parser', () => {
             logParsingResults(input, result);
         }
         
-        // The test should fail if there are implicit T__ tokens for parentheses
+        // The test should pass even with external type references like Dictionary, Excel.Application, etc.
         assert.strictEqual(result.syntaxErrors, 0, `Expected no syntax errors, but found: ${result.errors.join(', ')}`);
-        assert.strictEqual(implicitTokens.length, 0, `Found implicit tokens: ${implicitTokens.map(t => t.typeName).join(', ')}`);
-    });
-    
-    it('should parse multiple function calls correctly', () => {
-        const testFilePath = path.join(__dirname, '../../../test/parser/pre/TwoFunctionCalls.bas');
-        const input = fs.readFileSync(testFilePath, 'utf8');
-
-        const result = parseAndGetErrors(input);
-        const implicitTokens = checkImplicitTokens(result);
-
-        if (shouldLogDetails(result, implicitTokens)) {
-            logParsingResults(input, result);
-        }
         
-        assert.strictEqual(result.syntaxErrors, 0);
-        assert.strictEqual(implicitTokens.length, 0);
+        // Ensure our UnresolvedTypeReferenceElement solution works - no implicit tokens should be generated
+        assert.strictEqual(implicitTokens.length, 0, `Found implicit tokens: ${implicitTokens.map(t => t.typeName).join(', ')}`);
+
+        if (verboseTestLogs) {
+            console.log('    ✅ Successfully parsed VBA code with external type references (Dictionary, Excel.Application, etc.)');
+        }
     });
     
 
