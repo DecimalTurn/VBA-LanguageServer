@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import { describe, it } from 'mocha';
 import * as assert from 'assert';
+import * as fs from 'fs';
+import * as path from 'path';
 import dedent from 'dedent';
 import { container } from 'tsyringe';
 import { CancellationTokenSource, MessageType } from 'vscode-languageserver';
@@ -171,4 +173,15 @@ describe('VBA Listener Integration', () => {
 
         assertNoErrorLogs(logs, 'Worksheet assignment parse');
     });
+
+    it('does not log errors for ExternalTypeReferences fixture', async () => {
+        const logs: LogNotification[] = [];
+        const fixturePath = path.resolve(process.cwd(), 'test/fixtures/ExternalTypeReferences.bas');
+        const vbaCode = fs.readFileSync(fixturePath, 'utf8');
+
+        await parseText('file:///test/ExternalTypeReferences.bas', vbaCode, logs);
+
+        assertNoErrorLogs(logs, 'ExternalTypeReferences fixture parse');
+    });
+    
 });
