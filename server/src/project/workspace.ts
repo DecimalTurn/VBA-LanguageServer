@@ -384,7 +384,8 @@ class WorkspaceEvents {
 			return;
 		}
 
-		const results = Services.projectScope.getDeclarationLocation(params.textDocument.uri, params.position);
+		const normalisedUri = params.textDocument.uri.toFilePath().toFileUri();
+		const results = Services.projectScope.getDeclarationLocation(normalisedUri, params.position);
 		Services.logger.debug(`Processed onDefinition: returning ${JSON.stringify(results)}`);
 
 		if (results === undefined) {
