@@ -9,6 +9,8 @@ import {
     IndexExpressionContext,
     LExpressionContext,
     MemberAccessExpressionContext,
+    OptionalParamContext,
+    ParamArrayContext,
     PositionalParamContext,
     SimpleNameExpressionContext,
     UnrestrictedNameContext,
@@ -37,6 +39,8 @@ export class WithStatementElement extends BaseRuleSyntaxElement<WithStatementCon
 export type NameExpressionContext = LExpressionContext
     | SimpleNameExpressionContext
     | MemberAccessExpressionContext
+    | OptionalParamContext
+    | ParamArrayContext
     | PositionalParamContext
     | IndexExpressionContext
     | WithMemberAccessExpressionContext
