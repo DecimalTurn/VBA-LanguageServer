@@ -988,23 +988,33 @@ export class ScopeItemCapability {
 	private findModuleByUri(uri: string): ScopeItemCapability | undefined {
 		const normalisedUri = uri.toFilePath().toFileUri();
 
-		const allModules = [...(this.modules?.values() ?? [])].flat();
-		const uriMatches = allModules.filter(module => {
-			if (!module.locationUri) {
-				return false;
+		let firstMatch: ScopeItemCapability | undefined;
+		let matchCount = 0;
+
+		const moduleCollections = this.modules?.values();
+		if (moduleCollections) {
+			for (const moduleArray of moduleCollections) {
+				for (const module of moduleArray) {
+					if (!module.locationUri) {
+						continue;
+					}
+
+					const moduleUri = module.locationUri.toFilePath().toFileUri();
+					if (moduleUri.ciEquals(normalisedUri)) {
+						matchCount++;
+						if (matchCount === 1) {
+							firstMatch = module;
+						} else {
+							Services.logger.error(`Module URI ambiguity: ${matchCount} found for ${normalisedUri}.`);
+							return;
+						}
+					}
+				}
 			}
-
-			const moduleUri = module.locationUri.toFilePath().toFileUri();
-			return moduleUri.ciEquals(normalisedUri);
-		});
-
-		if (uriMatches.length === 1) {
-			return uriMatches[0];
 		}
 
-		if (uriMatches.length > 1) {
-			Services.logger.error(`Module URI ambiguity: ${uriMatches.length} found for ${normalisedUri}.`);
-			return;
+		if (firstMatch) {
+			return firstMatch;
 		}
 
 		const moduleName = normalisedUri.split('/').at(-1)?.split('.').slice(0, -1).join('.');
