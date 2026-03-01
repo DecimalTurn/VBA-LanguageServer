@@ -308,7 +308,7 @@ class WorkspaceEvents {
 			await sleep(5);
 			// A didChange can replace the tracked document instance while an older
 			// request is still waiting; re-read the latest instance to avoid stale waits
-			const latestDocument = this.projectDocuments.get(uri);
+			const latestDocument = this.projectDocuments.get(normalisedUri);
 			if (latestDocument) {
 				// For versioned requests, ensure we don't return a different version.
 				if (version > 0 && latestDocument.textDocument.version !== version) {
