@@ -19,6 +19,18 @@ type LogNotification = {
     level: number;
 };
 
+const ERROR_LOG_TYPE = 1;
+
+function assertNoErrorLogs(logs: LogNotification[], context: string): void {
+    const errorLogs = logs.filter(log => log.type === ERROR_LOG_TYPE);
+
+    assert.strictEqual(
+        errorLogs.length,
+        0,
+        `${context} produced error logs: ${errorLogs.map(x => x.message).join(' | ')}`
+    );
+}
+
 function registerTestServices(logs: LogNotification[]): void {
     container.clearInstances();
 
@@ -73,15 +85,7 @@ describe('VBA Listener Integration', () => {
 
         await parseText('file:///test/ScopeDiagnostics.bas', vbaCode, logs);
 
-        const cannotAddParam = logs.filter(log =>
-            log.message.includes('Cannot add name test_param')
-        );
-
-        assert.strictEqual(
-            cannotAddParam.length,
-            0,
-            `Expected no "Cannot add name test_param" errors, got ${cannotAddParam.map(x => x.message).join(' | ')}`
-        );
+        assertNoErrorLogs(logs, 'Optional parameter parse');
     });
 
     it('does not log ParamArray identifiers as unresolved names', async () => {
@@ -97,14 +101,6 @@ describe('VBA Listener Integration', () => {
 
         await parseText('file:///test/ParamArrayTest.bas', vbaCode, logs);
 
-        const cannotAddParamArray = logs.filter(log =>
-            log.message.includes('Cannot add name args')
-        );
-
-        assert.strictEqual(
-            cannotAddParamArray.length,
-            0,
-            `Expected no "Cannot add name args" errors, got ${cannotAddParamArray.map(x => x.message).join(' | ')}`
-        );
+        assertNoErrorLogs(logs, 'ParamArray parse');
     });
 });
