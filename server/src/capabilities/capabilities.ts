@@ -986,7 +986,28 @@ export class ScopeItemCapability {
 	}
 
 	private findModuleByUri(uri: string): ScopeItemCapability | undefined {
-		const moduleName = uri.split('/').at(-1)?.split('.').slice(0, -1).join('.');
+		const normalisedUri = uri.toFilePath().toFileUri();
+
+		const allModules = [...(this.modules?.values() ?? [])].flat();
+		const uriMatches = allModules.filter(module => {
+			if (!module.locationUri) {
+				return false;
+			}
+
+			const moduleUri = module.locationUri.toFilePath().toFileUri();
+			return moduleUri.ciEquals(normalisedUri);
+		});
+
+		if (uriMatches.length === 1) {
+			return uriMatches[0];
+		}
+
+		if (uriMatches.length > 1) {
+			Services.logger.error(`Module URI ambiguity: ${uriMatches.length} found for ${normalisedUri}.`);
+			return;
+		}
+
+		const moduleName = normalisedUri.split('/').at(-1)?.split('.').slice(0, -1).join('.');
 		if (!moduleName) {
 			Services.logger.error(`Bad URI or name: ${moduleName} from ${uri}`);
 			return;
