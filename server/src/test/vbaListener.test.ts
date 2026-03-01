@@ -103,4 +103,23 @@ describe('VBA Listener Integration', () => {
 
         assertNoErrorLogs(logs, 'ParamArray parse');
     });
+
+    it('does not log errors for worksheet assignment', async () => {
+        const logs: LogNotification[] = [];
+        const vbaCode = dedent`
+            Attribute VB_Name = "aaaaaaaaa"
+
+            option explicit
+
+            Public Sub Identifier()
+
+                dim g_vouTempSht As Worksheet
+                Set g_vouTempSht = g_wb.sheets("科目表")
+            End Sub
+        `;
+
+        await parseText('file:///test/WorksheetAssignment.bas', vbaCode, logs);
+
+        assertNoErrorLogs(logs, 'Worksheet assignment parse');
+    });
 });
