@@ -371,8 +371,19 @@ export class VbaListener extends vbaListener {
         this.registerNameElement();
     };
 
-    enterUnrestrictedName = (ctx: UnrestrictedNameContext) => this.addNameElementContext(ctx, 'enterUnrestrictedName');
-    enterSimpleNameExpression = (ctx: SimpleNameExpressionContext) => this.addNameElementContext(ctx, 'enterSimpleNameExpression');
+    enterUnrestrictedName = (ctx: UnrestrictedNameContext) => {
+        if (!this.hasActiveNameElement()) {
+            return;
+        }
+        this.addNameElementContext(ctx, 'enterUnrestrictedName');
+    };
+
+    enterSimpleNameExpression = (ctx: SimpleNameExpressionContext) => {
+        if (!this.hasActiveNameElement()) {
+            return;
+        }
+        this.addNameElementContext(ctx, 'enterSimpleNameExpression');
+    };
 
     private addNameElementContext(ctx: UnrestrictedNameContext | SimpleNameExpressionContext | AmbiguousIdentifierContext, source: string) {
         if (this.verbose) Services.logger.debug(`${source}: ${ctx.getText()}`, this.parserStateStack.length);
@@ -383,6 +394,10 @@ export class VbaListener extends vbaListener {
         }
 
         nameElement.addName(ctx);
+    }
+
+    private hasActiveNameElement(): boolean {
+        return this.parserState.nameElements.length > 0;
     }
 
     /**
