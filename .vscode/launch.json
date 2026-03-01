@@ -1,22 +1,57 @@
 // A launch configuration that compiles the extension and then opens it inside a new window
+// -*- mode: jsonc -*-
 {
 	"version": "0.2.0",
 	"configurations": [
 		{
+			// Opens a new Extension Development Host window and loads this extension from the workspace.
 			"type": "extensionHost",
 			"request": "launch",
 			"name": "Launch Client",
+			"preLaunchTask": "watch",
 			"runtimeExecutable": "${execPath}",
 			"args": [
 				"--extensionDevelopmentPath=${workspaceRoot}",
 				"${workspaceFolder}/sample/project"
-			]
+			],
+			"sourceMaps": true,
+			"outFiles": ["${workspaceRoot}/dist/client/out/**/*.js"],
 		},
 		{
+			// Same as Launch Client, but opens test fixtures to quickly exercise parser/diagnostic scenarios.
+			"type": "extensionHost",
+			"request": "launch",
+			"name": "Launch Client (Fixtures)",
+			"preLaunchTask": "watch",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceRoot}",
+				"${workspaceFolder}/test/fixtures"
+			],
+			"sourceMaps": true,
+			"outFiles": ["${workspaceRoot}/dist/client/out/**/*.js"],
+		},
+		{
+			// Attaches to the language server Node process started by client/src/extension.ts in debug mode
+			// (debug options use --inspect=6009).
 			"type": "node",
 			"request": "attach",
 			"name": "Attach to Server",
 			"port": 6009,
+			"timeout": 60000,
+			"cwd": "${workspaceFolder}",
+			"sourceMaps": true,
+			"outFiles": [
+				"${workspaceFolder}/dist/server/out/**/*.js"
+			],
+			// Uncomment these when server breakpoints bind to generated/dependency code,
+			// or when source-map resolution becomes slow/ambiguous in attach mode.
+			// They restrict map resolution to our built server output and map relative
+			// source paths back to workspace files deterministically.
+			// "resolveSourceMapLocations": [
+			// 	"${workspaceFolder}/dist/server/out/**/*.js",
+			// 	"!**/node_modules/**"
+			// ],
 			"restart": true,
 		},
 		{
@@ -35,7 +70,7 @@
 		},
 		{
 			"name": "Run Web Extension in VS Code",
-			"type": "pwa-extensionHost",
+			"type": "extensionHost",
 			"debugWebWorkerHost": true,
 			"request": "launch",
 			"args": [
@@ -96,7 +131,16 @@
 			"configurations": [
 				"Launch Client",
 				"Attach to Server"
-			]
-		}
+			],
+			"stopAll": true
+		},
+		{
+			"name": "Client + Server (Fixtures)",
+			"configurations": [
+				"Launch Client (Fixtures)",
+				"Attach to Server"
+			],
+			"stopAll": true
+		},
 	]
 }

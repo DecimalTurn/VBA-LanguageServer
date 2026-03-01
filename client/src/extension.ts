@@ -22,7 +22,8 @@ export function activate(context: ExtensionContext) {
 		path.join('dist', 'server', 'out', 'server.js')
 	);
 	// The debug options for the server
-	// --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
+	// --inspect=6009: runs the server in Node's Inspector mode and listens on port 6009 for a debugger to attach
+	// --inspect-brk=6009: runs the server in Node's Inspector mode and breaks at the first line so VS Code can attach to the server for debugging
 	const debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
 
 	// If the extension is launched in debug mode then the debug server options are used
@@ -63,6 +64,13 @@ export function activate(context: ExtensionContext) {
 
 	// Start the client. This will also launch the server
 	client.start();
+
+	// Call console.log on a regular interval
+	// This is to keep the extension host process alive and prevent it from exiting when idle,
+	// which allows us to attach the debugger to the server process even if no documents are open.
+	setInterval(() => {
+		console.log('Extension is still alive! You bet I am and more');
+	}, 5000);
 }
 
 export function deactivate(): Thenable<void> | undefined {

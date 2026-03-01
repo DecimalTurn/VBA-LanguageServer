@@ -1,3 +1,4 @@
+// -*- mode: jsonc -*-
 {
 	"version": "2.0.0",
 	"tasks": [
@@ -31,7 +32,7 @@
 			"type": "npm",
 			"script": "watch:esbuild",
 			"group": "build",
-			"problemMatcher": "$esbuild-watch",
+			"problemMatcher": "$esbuild-watch", /*$esbuild-watch is defined in the extension connor4312.esbuild-problem-matchers*/
 			"isBackground": true,
 			"label": "npm: watch:esbuild",
 			"presentation": {
@@ -43,7 +44,7 @@
 			"type": "npm",
 			"script": "watch:tsc",
 			"group": "build",
-			"problemMatcher": "$tsc-watch",
+			"problemMatcher": "$tsc-watch", /*$tsc-watch is a built-in problem matcher*/
 			"isBackground": true,
 			"label": "npm: watch:tsc",
 			"presentation": {
