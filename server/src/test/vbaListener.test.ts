@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import { describe, it } from 'mocha';
 import * as assert from 'assert';
+import * as fs from 'fs';
+import * as path from 'path';
 import dedent from 'dedent';
 import { container } from 'tsyringe';
 import { CancellationTokenSource, MessageType } from 'vscode-languageserver';
@@ -29,6 +31,28 @@ function assertNoErrorLogs(logs: LogNotification[], context: string): void {
         0,
         `${context} produced error logs: ${errorLogs.map(x => x.message).join(' | ')}`
     );
+}
+
+function findScopeItem(
+    root: ScopeItemCapability,
+    predicate: (item: ScopeItemCapability) => boolean
+): ScopeItemCapability | undefined {
+    if (predicate(root)) {
+        return root;
+    }
+
+    for (const map of root.maps) {
+        for (const items of map.values()) {
+            for (const item of items) {
+                const result = findScopeItem(item, predicate);
+                if (result) {
+                    return result;
+                }
+            }
+        }
+    }
+
+    return undefined;
 }
 
 function registerTestServices(logs: LogNotification[]): void {
@@ -103,4 +127,61 @@ describe('VBA Listener Integration', () => {
 
         assertNoErrorLogs(logs, 'ParamArray parse');
     });
+
+    it('does not log errors for worksheet assignment', async () => {
+        const logs: LogNotification[] = [];
+        const vbaCode = dedent`
+            Attribute VB_Name = "aaaaaaaaa"
+
+            option explicit
+
+            Public Sub Identifier()
+
+                dim g_vouTempSht As Worksheet
+                Set g_vouTempSht = g_wb.sheets("科目表")
+            End Sub
+        `;
+
+        await parseText('file:///test/WorksheetAssignment.bas', vbaCode, logs);
+
+        const projectScope = container.resolve<ScopeItemCapability>('ProjectScope');
+        const subroutineScope = findScopeItem(projectScope, item =>
+            item.type === ScopeType.SUBROUTINE && item.name === 'Identifier'
+        );
+
+        assert.ok(subroutineScope, 'Expected to resolve subroutine scope for Identifier');
+
+        const variableScope = findScopeItem(projectScope, item =>
+            item.type === ScopeType.VARIABLE
+            && item.name === 'g_vouTempSht'
+            && item.parent?.name === 'Identifier'
+        );
+
+        assert.ok(variableScope, 'Expected to resolve variable scope for g_vouTempSht');
+        assert.strictEqual(variableScope?.name, 'g_vouTempSht');
+        assert.strictEqual(variableScope?.classTypeName, 'Worksheet');
+
+        const variableReference = findScopeItem(projectScope, item =>
+            item.type === ScopeType.REFERENCE
+            && item.name === 'g_vouTempSht'
+            && item.parent?.name === 'Identifier'
+        );
+
+        assert.ok(variableReference, 'Expected to resolve reference scope for g_vouTempSht');
+        assert.strictEqual(variableReference?.link?.name, 'g_vouTempSht');
+        assert.strictEqual(variableReference?.link?.type, ScopeType.VARIABLE);
+
+        assertNoErrorLogs(logs, 'Worksheet assignment parse');
+    });
+
+    it('does not log errors for ExternalTypeReferences fixture', async () => {
+        const logs: LogNotification[] = [];
+        const fixturePath = path.join(__dirname, '../../../test/fixtures/ExternalTypeReferences.bas');
+        const vbaCode = fs.readFileSync(fixturePath, 'utf8');
+
+        await parseText('file:///test/ExternalTypeReferences.bas', vbaCode, logs);
+
+        assertNoErrorLogs(logs, 'ExternalTypeReferences fixture parse');
+    });
+    
 });
