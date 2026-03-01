@@ -3,8 +3,10 @@ import '../extensions/stringExtensions';
 
 import { describe, it } from 'mocha';
 import * as assert from 'assert';
+import dedent from 'dedent';
 import { container } from 'tsyringe';
 import { CancellationTokenSource } from 'vscode-languageserver';
+import { SymbolKind } from 'vscode-languageserver';
 
 import { Workspace } from '../project/workspace';
 import { ILanguageServer } from '../injection/interface';
@@ -132,5 +134,220 @@ describe('Workspace document replacement race', () => {
                 new Promise<void>(resolve => setTimeout(resolve, 300))
             ]);
         }
+    });
+});
+
+describe('Workspace zero-symbol classification', () => {
+    it('does not flag legitimate no-symbol module content', () => {
+        container.clearInstances();
+
+        const connection = createMockConnection();
+        const server = createMockServer();
+
+        container.registerInstance('_Connection', connection);
+        container.registerInstance('ILanguageServer', server);
+
+        const workspace = new Workspace(connection, server);
+        const events = (workspace as any).events;
+        const moduleText = dedent`
+            Option Explicit
+            Attribute VB_Name = "Module1"
+            ' comment
+            Rem comment
+            #If VBA7 Then
+            #Else
+            #End If
+        `;
+
+        const result = (events as any).shouldLogMissingSymbols({
+            textDocument: {
+                getText: () => moduleText
+            }
+        });
+
+        assert.strictEqual(result, false, 'Expected legitimate directive-only content to skip missing-symbol error logging');
+    });
+
+    it('flags substantive code with empty symbol list', () => {
+        container.clearInstances();
+
+        const connection = createMockConnection();
+        const server = createMockServer();
+
+        container.registerInstance('_Connection', connection);
+        container.registerInstance('ILanguageServer', server);
+
+        const workspace = new Workspace(connection, server);
+        const events = (workspace as any).events;
+        const moduleText = dedent`
+            Option Explicit
+            Public Sub Test()
+            End Sub
+        `;
+
+        const result = (events as any).shouldLogMissingSymbols({
+            textDocument: {
+                getText: () => moduleText
+            }
+        });
+
+        assert.strictEqual(result, true, 'Expected substantive code to be flagged when symbols are missing');
+    });
+
+    it('does not flag a procedure wrapped in conditional compilation', () => {
+        container.clearInstances();
+
+        const connection = createMockConnection();
+        const server = createMockServer();
+
+        container.registerInstance('_Connection', connection);
+        container.registerInstance('ILanguageServer', server);
+
+        const workspace = new Workspace(connection, server);
+        const events = (workspace as any).events;
+        const moduleText = dedent`
+            Option Explicit
+            #If Win64 Then
+            Public Sub ConditionalProc()
+            End Sub
+            #End If
+        `;
+
+        const result = (events as any).shouldLogMissingSymbols({
+            textDocument: {
+                getText: () => moduleText
+            }
+        });
+
+        assert.strictEqual(result, false, 'Expected conditional-compilation-only procedures to be treated as legitimate zero-symbol content');
+    });
+});
+
+describe('Workspace missing-symbol log severity', () => {
+    it('returns error when no symbols are produced at all', () => {
+        container.clearInstances();
+
+        const connection = createMockConnection();
+        const server = createMockServer();
+
+        container.registerInstance('_Connection', connection);
+        container.registerInstance('ILanguageServer', server);
+
+        const workspace = new Workspace(connection, server);
+        const events = (workspace as any).events;
+        const moduleText = dedent`
+            Option Explicit
+            Public Sub Test()
+            End Sub
+        `;
+
+        const severity = (events as any).getMissingSymbolsLogSeverity(
+            { textDocument: { getText: () => moduleText } },
+            []
+        );
+
+        assert.strictEqual(severity, 'error');
+    });
+
+    it('returns warn when only module symbol exists but member symbols are expected', () => {
+        container.clearInstances();
+
+        const connection = createMockConnection();
+        const server = createMockServer();
+
+        container.registerInstance('_Connection', connection);
+        container.registerInstance('ILanguageServer', server);
+
+        const workspace = new Workspace(connection, server);
+        const events = (workspace as any).events;
+        const moduleText = dedent`
+            Option Explicit
+            Public Sub Test()
+            End Sub
+        `;
+
+        const severity = (events as any).getMissingSymbolsLogSeverity(
+            { textDocument: { getText: () => moduleText } },
+            [{ kind: SymbolKind.File }]
+        );
+
+        assert.strictEqual(severity, 'warn');
+    });
+
+    it('returns none when only module symbol exists and content is legitimately non-symbolic', () => {
+        container.clearInstances();
+
+        const connection = createMockConnection();
+        const server = createMockServer();
+
+        container.registerInstance('_Connection', connection);
+        container.registerInstance('ILanguageServer', server);
+
+        const workspace = new Workspace(connection, server);
+        const events = (workspace as any).events;
+        const moduleText = dedent`
+            Attribute VB_Name = "Module1"    
+            Option Explicit
+        `;
+
+        const severity = (events as any).getMissingSymbolsLogSeverity(
+            { textDocument: { getText: () => moduleText } },
+            [{ kind: SymbolKind.File }]
+        );
+
+        assert.strictEqual(severity, 'none');
+    });
+
+    it('returns none when only module symbol exists and procedures are in inactive compiler branch', () => {
+        container.clearInstances();
+
+        const connection = createMockConnection();
+        const server = createMockServer();
+
+        container.registerInstance('_Connection', connection);
+        container.registerInstance('ILanguageServer', server);
+
+        const workspace = new Workspace(connection, server);
+        const events = (workspace as any).events;
+        const moduleText = dedent`
+            Option Explicit
+            #If Win64 Then
+            #Else
+            Public Sub ConditionalProc()
+            End Sub
+            #End If
+        `;
+
+        const severity = (events as any).getMissingSymbolsLogSeverity(
+            { textDocument: { getText: () => moduleText } },
+            [{ kind: SymbolKind.File }]
+        );
+
+        assert.strictEqual(severity, 'none');
+    });
+
+    it('returns none when member symbols are present', () => {
+        container.clearInstances();
+
+        const connection = createMockConnection();
+        const server = createMockServer();
+
+        container.registerInstance('_Connection', connection);
+        container.registerInstance('ILanguageServer', server);
+
+        const workspace = new Workspace(connection, server);
+        const events = (workspace as any).events;
+        const moduleText = dedent`
+            Option Explicit
+            Public Sub Test()
+            End Sub
+        `;
+
+        const severity = (events as any).getMissingSymbolsLogSeverity(
+            { textDocument: { getText: () => moduleText } },
+            [{ kind: SymbolKind.File }, { kind: SymbolKind.Method }]
+        );
+
+        assert.strictEqual(severity, 'none');
     });
 });

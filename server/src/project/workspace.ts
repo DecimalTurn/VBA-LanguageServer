@@ -22,6 +22,7 @@ import {
 	RenameParams,
 	SemanticTokensRangeParams,
 	SymbolInformation,
+	SymbolKind,
 	TextDocuments,
 	TextEdit,
 	WorkspaceEdit,
@@ -414,7 +415,7 @@ class WorkspaceEvents {
 		const symbols = document?.languageServerSymbolInformation() ?? [];
 
 		if (document) {
-			switch (getMissingSymbolsLogSeverity(document.textDocument.getText(), symbols)) {
+			switch (this.getMissingSymbolsLogSeverity(document, symbols)) {
 				case 'error':
 					Services.logger.error(`No document symbols produced for ${document.name}`);
 					break;
@@ -427,6 +428,70 @@ class WorkspaceEvents {
 		}
 
 		return symbols;
+	}
+
+	/**
+	 * Determines diagnostic log severity for missing outline symbols.
+	 *
+	 * - `error`: no symbols at all (module/class symbol missing)
+	 * - `warn`: only module/class symbol exists but member symbols are expected
+	 * - `none`: symbols are present as expected or document can legitimately have none
+	 */
+	private getMissingSymbolsLogSeverity(document: BaseProjectDocument, symbols: SymbolInformation[]): 'none' | 'warn' | 'error' {
+		if (symbols.length === 0) {
+			return 'error';
+		}
+
+		const hasMemberSymbols = symbols.some(x => x.kind !== SymbolKind.File);
+		if (hasMemberSymbols) {
+			return 'none';
+		}
+
+		return this.shouldLogMissingSymbols(document) ? 'warn' : 'none';
+	}
+
+	/**
+	 * Returns true when an empty symbol result is unexpected and should be surfaced.
+	 *
+	 * Files containing only module options, attributes, preprocessor directives,
+	 * comments, and blank lines can legitimately produce no symbols.
+	 */
+	private shouldLogMissingSymbols(document: BaseProjectDocument): boolean {
+		const lines = document.textDocument.getText().split(/\r?\n/);
+		let preprocessorDepth = 0;
+
+		for (const rawLine of lines) {
+			const line = rawLine.trim();
+			if (line.length === 0) continue;
+			if (/^'/.test(line)) continue;
+			if (/^rem(?:\s|$)/i.test(line)) continue;
+			if (/^option\b/i.test(line)) continue;
+			if (/^attribute\s+vb_/i.test(line)) continue;
+
+			if (/^#if\b/i.test(line)) {
+				preprocessorDepth++;
+				continue;
+			}
+
+			if (/^#elseif\b/i.test(line) || /^#else\b/i.test(line)) {
+				continue;
+			}
+
+			if (/^#end\s*if\b/i.test(line)) {
+				preprocessorDepth = Math.max(0, preprocessorDepth - 1);
+				continue;
+			}
+
+			if (/^#const\b/i.test(line)) continue;
+
+			if (preprocessorDepth > 0) {
+				continue;
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 	private async onFoldingRangesAsync(params: FoldingRangeParams, token: CancellationToken): Promise<FoldingRange[] | undefined> {
