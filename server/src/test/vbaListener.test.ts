@@ -176,7 +176,7 @@ describe('VBA Listener Integration', () => {
 
     it('does not log errors for ExternalTypeReferences fixture', async () => {
         const logs: LogNotification[] = [];
-        const fixturePath = path.resolve(process.cwd(), 'test/fixtures/ExternalTypeReferences.bas');
+        const fixturePath = path.join(__dirname, '../../../test/fixtures/ExternalTypeReferences.bas');
         const vbaCode = fs.readFileSync(fixturePath, 'utf8');
 
         await parseText('file:///test/ExternalTypeReferences.bas', vbaCode, logs);
