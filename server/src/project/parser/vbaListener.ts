@@ -351,7 +351,7 @@ export class VbaListener extends vbaListener {
             ?? ctx.paramDcl().typedNameParamDcl()?.typedName().ambiguousIdentifier();
 
         if (identifierCtx) {
-            this.addNameElementContext(identifierCtx, 'ambigiousNameContext');
+            this.addNameElementContext(identifierCtx, 'ambiguousNameContext');
         }
     };
 
@@ -363,7 +363,7 @@ export class VbaListener extends vbaListener {
     enterParamArray = (ctx: ParamArrayContext) => {
         if (this.verbose) Services.logger.debug(`enterParamArray: ${ctx.getText()}`, this.parserStateStack.length);
         this.pushNameElement(ctx);
-        this.addNameElementContext(ctx.ambiguousIdentifier(), 'ambigiousNameContext');
+        this.addNameElementContext(ctx.ambiguousIdentifier(), 'ambiguousNameContext');
     };
 
     exitParamArray = (ctx: ParamArrayContext) => {

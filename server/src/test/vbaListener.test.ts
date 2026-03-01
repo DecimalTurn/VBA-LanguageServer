@@ -3,7 +3,7 @@ import { describe, it } from 'mocha';
 import * as assert from 'assert';
 import dedent from 'dedent';
 import { container } from 'tsyringe';
-import { CancellationTokenSource } from 'vscode-languageserver';
+import { CancellationTokenSource, MessageType } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import '../extensions/antlrCoreExtensions';
@@ -19,7 +19,7 @@ type LogNotification = {
     level: number;
 };
 
-const ERROR_LOG_TYPE = 1;
+const ERROR_LOG_TYPE = MessageType.Error;
 
 function assertNoErrorLogs(logs: LogNotification[], context: string): void {
     const errorLogs = logs.filter(log => log.type === ERROR_LOG_TYPE);
