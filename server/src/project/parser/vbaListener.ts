@@ -346,6 +346,7 @@ export class VbaListener extends vbaListener {
 
     enterOptionalParam = (ctx: OptionalParamContext) => {
         if (this.verbose) Services.logger.debug(`enterOptionalParam: ${ctx.getText()}`, this.parserStateStack.length);
+        this.pushNameElement(ctx);
         const identifierCtx = ctx.paramDcl().untypedNameParamDcl()?.ambiguousIdentifier()
             ?? ctx.paramDcl().typedNameParamDcl()?.typedName().ambiguousIdentifier();
 
@@ -361,6 +362,7 @@ export class VbaListener extends vbaListener {
 
     enterParamArray = (ctx: ParamArrayContext) => {
         if (this.verbose) Services.logger.debug(`enterParamArray: ${ctx.getText()}`, this.parserStateStack.length);
+        this.pushNameElement(ctx);
         this.addNameElementContext(ctx.ambiguousIdentifier(), 'ambigiousNameContext');
     };
 
@@ -383,6 +385,10 @@ export class VbaListener extends vbaListener {
         nameElement.addName(ctx);
     }
 
+    /**
+     * Creates and pushes the active name-expression container for the current
+     * parse context.
+     */
     private pushNameElement(ctx: NameExpressionContext): void {
         if (this.verbose) Services.logger.debug('Pushing name', this.parserStateStack.length);
         const element = new NameExpressionElement(ctx, this.document.textDocument);
