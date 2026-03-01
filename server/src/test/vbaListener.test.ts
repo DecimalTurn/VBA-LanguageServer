@@ -31,6 +31,28 @@ function assertNoErrorLogs(logs: LogNotification[], context: string): void {
     );
 }
 
+function findScopeItem(
+    root: ScopeItemCapability,
+    predicate: (item: ScopeItemCapability) => boolean
+): ScopeItemCapability | undefined {
+    if (predicate(root)) {
+        return root;
+    }
+
+    for (const map of root.maps) {
+        for (const items of map.values()) {
+            for (const item of items) {
+                const result = findScopeItem(item, predicate);
+                if (result) {
+                    return result;
+                }
+            }
+        }
+    }
+
+    return undefined;
+}
+
 function registerTestServices(logs: LogNotification[]): void {
     container.clearInstances();
 
@@ -119,6 +141,33 @@ describe('VBA Listener Integration', () => {
         `;
 
         await parseText('file:///test/WorksheetAssignment.bas', vbaCode, logs);
+
+        const projectScope = container.resolve<ScopeItemCapability>('ProjectScope');
+        const subroutineScope = findScopeItem(projectScope, item =>
+            item.type === ScopeType.SUBROUTINE && item.name === 'Identifier'
+        );
+
+        assert.ok(subroutineScope, 'Expected to resolve subroutine scope for Identifier');
+
+        const variableScope = findScopeItem(projectScope, item =>
+            item.type === ScopeType.VARIABLE
+            && item.name === 'g_vouTempSht'
+            && item.parent?.name === 'Identifier'
+        );
+
+        assert.ok(variableScope, 'Expected to resolve variable scope for g_vouTempSht');
+        assert.strictEqual(variableScope?.name, 'g_vouTempSht');
+        assert.strictEqual(variableScope?.classTypeName, 'Worksheet');
+
+        const variableReference = findScopeItem(projectScope, item =>
+            item.type === ScopeType.REFERENCE
+            && item.name === 'g_vouTempSht'
+            && item.parent?.name === 'Identifier'
+        );
+
+        assert.ok(variableReference, 'Expected to resolve reference scope for g_vouTempSht');
+        assert.strictEqual(variableReference?.link?.name, 'g_vouTempSht');
+        assert.strictEqual(variableReference?.link?.type, ScopeType.VARIABLE);
 
         assertNoErrorLogs(logs, 'Worksheet assignment parse');
     });
