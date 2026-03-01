@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Services } from '../injection/services';
 import { pathToFileURL } from 'url';
-import { Position, Range } from 'vscode-languageserver';
+import { Position, Range, SymbolInformation, SymbolKind } from 'vscode-languageserver';
 
 export class Dictionary<K, V> extends Map<K, V> {
 	private defaultFactory: (...args: any) => V;
@@ -132,4 +132,65 @@ export function rangeEquals(r1?: Range, r2?: Range): boolean {
 		&& r1.start.character === r2.start.character
 		&& r1.end.line === r2.end.line
 		&& r1.end.character === r2.end.character;
+}
+
+/**
+ * Returns true when member symbols would normally be expected from the provided VBA source.
+ */
+export function shouldHaveSymbols(text: string): boolean {
+	const lines = text.split(/\r?\n/);
+	let preprocessorDepth = 0;
+
+	for (const rawLine of lines) {
+		const line = rawLine.trim();
+		if (line.length === 0) continue;
+		if (/^'/.test(line)) continue;
+		if (/^rem(?:\s|$)/i.test(line)) continue;
+		if (/^option\b/i.test(line)) continue;
+		if (/^attribute\s+vb_/i.test(line)) continue;
+
+		if (/^#if\b/i.test(line)) {
+			preprocessorDepth++;
+			continue;
+		}
+
+		if (/^#elseif\b/i.test(line) || /^#else\b/i.test(line)) {
+			continue;
+		}
+
+		if (/^#end\s*if\b/i.test(line)) {
+			preprocessorDepth = Math.max(0, preprocessorDepth - 1);
+			continue;
+		}
+
+		if (/^#const\b/i.test(line)) continue;
+
+		if (preprocessorDepth > 0) {
+			continue;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Determines diagnostic log severity for missing outline symbols.
+ *
+ * - `error`: no symbols at all (module/class symbol missing)
+ * - `warn`: only module/class symbol exists but member symbols are expected
+ * - `none`: symbols are present as expected or document can legitimately have none
+ */
+export function getMissingSymbolsLogSeverity(text: string, symbols: Pick<SymbolInformation, 'kind'>[]): 'none' | 'warn' | 'error' {
+	if (symbols.length === 0) {
+		return 'error';
+	}
+
+	const hasMemberSymbols = symbols.some(x => x.kind !== SymbolKind.File);
+	if (hasMemberSymbols) {
+		return 'none';
+	}
+
+	return shouldHaveSymbols(text) ? 'warn' : 'none';
 }

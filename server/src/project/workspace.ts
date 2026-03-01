@@ -34,15 +34,13 @@ import {
 import { ParseCancellationException } from 'antlr4ng';
 
 // Project
-import { sleep, walk } from '../utils/helpers';
+import { getMissingSymbolsLogSeverity, sleep, walk } from '../utils/helpers';
 import { Services } from '../injection/services';
 import { getFormattingEdits } from './formatter';
 import { BaseProjectDocument } from './document';
-import { SyntaxParser } from './parser/vbaParser';
 import { VbaFmtListener } from './parser/vbaListener';
 import { hasWorkspaceConfigurationCapability } from '../capabilities/workspaceFolder';
 import { Logger, ILanguageServer, IWorkspace } from '../injection/interface';
-import { returnDefaultOnCancelClientRequest } from '../utils/wrappers';
 import { ScopeType, ScopeItemCapability } from '../capabilities/capabilities';
 
 export interface ExtensionConfiguration {
@@ -116,7 +114,6 @@ export class Workspace implements IWorkspace {
 		}
 
 		// Set up parser and dummy token because we won't cancel this.
-		const parser = new SyntaxParser(this.logger);
 		const token = new CancellationTokenSource().token;
 
 		// Handle each file in the workspace.
@@ -134,7 +131,8 @@ export class Workspace implements IWorkspace {
 				const textDocument = TextDocument.create(`${normalisedUri}`, 'vba', 1, file);
 				const projectDocument = BaseProjectDocument.create(textDocument);
 				this.projectDocuments.set(normalisedUri, projectDocument);
-				await parser.parse(token, projectDocument);
+				await projectDocument.parse(token);
+				this.connection.sendDiagnostics(projectDocument.languageServerDiagnostics());
 				this.logger.info(`Parsed ${projectDocument.name}`, 1);
 			} catch (e) {
 				// Log errors and anything else without failing.
@@ -284,17 +282,19 @@ class WorkspaceEvents {
 		// Handle token cancellation.
 		if (token.isCancellationRequested) return undefined;
 
+		const normalisedUri = uri.toFilePath().toFileUri();
+
 		let cancelled = false;
 		token.onCancellationRequested(() => cancelled = true);
 
 		let document: BaseProjectDocument | undefined;
-		document = this.projectDocuments.get(uri);
+		document = this.projectDocuments.get(normalisedUri);
 
 		// Ensure we have the appropriately versioned document.
 		while (!document || document.textDocument.version < version) {
 			if (cancelled) return undefined;
 			await sleep(5);
-			document = this.projectDocuments.get(uri);
+			document = this.projectDocuments.get(normalisedUri);
 		}
 
 		// Return nothing if the document version is newer than requested.
@@ -308,7 +308,7 @@ class WorkspaceEvents {
 			await sleep(5);
 			// A didChange can replace the tracked document instance while an older
 			// request is still waiting; re-read the latest instance to avoid stale waits
-			const latestDocument = this.projectDocuments.get(uri);
+			const latestDocument = this.projectDocuments.get(normalisedUri);
 			if (latestDocument) {
 				// For versioned requests, ensure we don't return a different version.
 				if (version > 0 && latestDocument.textDocument.version !== version) {
@@ -322,9 +322,6 @@ class WorkspaceEvents {
 	}
 
 	private initialiseConnectionEvents(connection: _Connection) {
-		const cancellableOnDocSymbol = returnDefaultOnCancelClientRequest(
-			(p: DocumentSymbolParams, t) => this.onDocumentSymbolAsync(p, t), [], 'Document Symbols');
-
 		connection.onCodeAction(async (params, token) => this.onCodeActionRequest(params, token));
 		connection.onCompletion(params => this.onCompletion(params));
 		connection.onCompletionResolve(item => this.onCompletionResolve(item));
@@ -333,7 +330,7 @@ class WorkspaceEvents {
 		connection.onDidChangeWatchedFiles(params => this.onDidChangeWatchedFiles(params));
 		connection.onDidCloseTextDocument(params => { Services.logger.debug('[event] onDidCloseTextDocument'); Services.logger.debug(JSON.stringify(params), 1); });
 		connection.onDocumentFormatting(async (params, token) => await this.onDocumentFormatting(params, token));
-		connection.onDocumentSymbol(async (params, token) => await cancellableOnDocSymbol(params, token));
+		connection.onDocumentSymbol(async (params, token) => await this.onDocumentSymbolAsync(params, token));
 		connection.onHover(params => this.onHover(params));
 		connection.onInitialized(() => this.onInitialized());
 		connection.onRenameRequest((params, token) => this.onRenameRequest(params, token));
@@ -411,8 +408,24 @@ class WorkspaceEvents {
 
 	private async onDocumentSymbolAsync(params: DocumentSymbolParams, token: CancellationToken): Promise<SymbolInformation[]> {
 		Services.logger.debug('[event] onDocumentSymbol');
-		const document = await this.getParsedProjectDocument(params.textDocument.uri, 0, token);
-		return document?.languageServerSymbolInformation() ?? [];
+		const normalisedUri = params.textDocument.uri.toFilePath().toFileUri();
+		const document = await this.getParsedProjectDocument(normalisedUri, 0, token);
+		const symbols = document?.languageServerSymbolInformation() ?? [];
+
+		if (document) {
+			switch (getMissingSymbolsLogSeverity(document.textDocument.getText(), symbols)) {
+				case 'error':
+					Services.logger.error(`No document symbols produced for ${document.name}`);
+					break;
+				case 'warn':
+					Services.logger.warn(`No member symbols produced for ${document.name}`);
+					break;
+				default:
+					break;
+			}
+		}
+
+		return symbols;
 	}
 
 	private async onFoldingRangesAsync(params: FoldingRangeParams, token: CancellationToken): Promise<FoldingRange[] | undefined> {
@@ -572,9 +585,14 @@ class WorkspaceEvents {
 		Services.logger.debug('[event] onDidOpen');
 		this.printDocumentInformation(document);
 		const normalisedUri = document.uri.toFilePath().toFileUri();
-		if (this.projectDocuments.has(normalisedUri)) {
-			Services.workspace.openDocument(document);
+
+		if (!this.projectDocuments.has(normalisedUri)) {
+			const projectDocument = BaseProjectDocument.create(document);
+			this.projectDocuments.set(normalisedUri, projectDocument);
+			Services.workspace.parseDocument(projectDocument);
 		}
+
+		Services.workspace.openDocument(document);
 	}
 
 	/**
