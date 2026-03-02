@@ -18,8 +18,31 @@ Provides Visual Basic for Applications (VBA) language support in Visual Studio C
 * Document symbols
 * Document diagnostics
 * Document formatting<sup>1</sup>
+* Auto-completion (IntelliSense)<sup>2</sup>
 
 <sup>1</sup>Currently full document `Shift+Alt+F` formatting only.
+<sup>2</sup>Suggests module members and in-scope names. Supports `.vbatype` ambient declaration files for external/DLL APIs.
+
+### Auto-Completion (IntelliSense)
+
+The extension provides IntelliSense completions for VBA code:
+
+- **Member access**: typing `MyModule.` suggests the public members (functions, subroutines, properties, types) of that module.
+- **In-scope names**: in any other context, all names visible from the current module are suggested (locals, module members, public names from sibling modules, and ambient declarations).
+
+#### `.vbatype` Ambient Declaration Files
+
+Similar to TypeScript's `.d.ts` files, `.vbatype` files let you describe external APIs (e.g., DLL functions imported via `Declare` statements) using standard VBA module syntax. Place them anywhere in your workspace and the LSP will parse them into an ambient scope that feeds completions without producing diagnostics in your project.
+
+Example `Win32API.vbatype`:
+```vba
+Attribute VB_Name = "Win32API"
+
+Public Declare Function GetTickCount Lib "kernel32" () As Long
+Public Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
+```
+
+After saving this file, typing `Win32API.` will suggest `GetTickCount` and `Sleep`.
 
 ### *PREVIEW* Definition Provider
 
@@ -92,7 +115,6 @@ End Property
 ## Coming Soon
 
 * Hovers
-* Completion
 
 ## Installation
 
