@@ -41,6 +41,7 @@ import { BaseProjectDocument } from './document';
 import { VbaFmtListener } from './parser/vbaListener';
 import { hasWorkspaceConfigurationCapability } from '../capabilities/workspaceFolder';
 import { Logger, ILanguageServer, IWorkspace } from '../injection/interface';
+import { getCompletionItems } from '../capabilities/completion';
 import { ScopeType, ScopeItemCapability } from '../capabilities/capabilities';
 
 export interface ExtensionConfiguration {
@@ -100,6 +101,7 @@ export class Workspace implements IWorkspace {
 		const applicationScope = new ScopeItemCapability(undefined, ScopeType.APPLICATION, undefined, languageScope);
 		const projectScope = new ScopeItemCapability(undefined, ScopeType.PROJECT, undefined, applicationScope);
 		Services.registerProjectScope(projectScope);
+		Services.registerApplicationScope(applicationScope);
 	}
 
 	// Initially parse everything in the folder.
@@ -107,14 +109,35 @@ export class Workspace implements IWorkspace {
 	async addWorkspaceFolder(params: WorkspaceFolder): Promise<void> {
 		this.logger.info(`Adding workspace: ${params.name}`);
 		const workspaceFiles = walk(params.uri, /\.(cls|bas|frm)$/i);
+		const ambientFiles = walk(params.uri, /\.vbatype$/i);
 
 		// No need to continue if we have no files.
-		if (workspaceFiles.size === 0) {
+		if (workspaceFiles.size === 0 && ambientFiles.size === 0) {
 			return;
 		}
 
 		// Set up parser and dummy token because we won't cancel this.
 		const token = new CancellationTokenSource().token;
+
+		// Parse .vbatype ambient declaration files into the application scope.
+		for (const [uri, file] of ambientFiles) {
+			const normalisedUri = uri.toFilePath().toFileUri();
+			if (this.projectDocuments.has(normalisedUri)) {
+				this.logger.debug(`Skipping ambient file: ${normalisedUri}`, 1);
+				continue;
+			}
+			try {
+				this.logger.debug(`Reading ambient file: ${normalisedUri}`, 1);
+				const textDocument = TextDocument.create(`${normalisedUri}`, 'vba', 1, file);
+				const projectDocument = BaseProjectDocument.create(textDocument, Services.applicationScope);
+				this.projectDocuments.set(normalisedUri, projectDocument);
+				await projectDocument.parse(token);
+				// Do NOT send diagnostics for ambient files.
+				this.logger.info(`Parsed ambient ${projectDocument.name}`, 1);
+			} catch (e) {
+				this.logger.error(`Failed to parse ambient ${normalisedUri}`, 0, e);
+			}
+		}
 
 		// Handle each file in the workspace.
 		for (const [uri, file] of workspaceFiles) {
@@ -365,10 +388,19 @@ class WorkspaceEvents {
 
 	/** Connection event handlers */
 
-	private onCompletion(params: CompletionParams): never[] {
+	private onCompletion(params: CompletionParams): CompletionItem[] {
 		Services.logger.debug('[event] onCompletion');
 		Services.logger.debug(JSON.stringify(params), 1);
-		return [];
+
+		const normalisedUri = params.textDocument.uri.toFilePath().toFileUri();
+		const document = this.documents.get(params.textDocument.uri)
+			?? this.projectDocuments.get(normalisedUri)?.textDocument;
+
+		if (!document) {
+			return [];
+		}
+
+		return getCompletionItems(params, Services.projectScope, document.getText());
 	}
 
 	private onCompletionResolve(item: CompletionItem): CompletionItem {

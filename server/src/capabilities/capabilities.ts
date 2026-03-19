@@ -1,5 +1,7 @@
 // Core
 import {
+	CompletionItem,
+	CompletionItemKind,
 	DiagnosticSeverity,
 	LocationLink,
 	Position,
@@ -1098,6 +1100,77 @@ export class ScopeItemCapability {
 
 		const uniqueItemsAtPosition = this.removeDuplicatesByRange(addedReferences);
 		return uniqueItemsAtPosition;
+	}
+
+	/**
+	 * Returns all public direct child members of this scope as completion items.
+	 * Used for member-access completion (e.g. `MyModule.|`).
+	 */
+	getPublicMembers(): CompletionItem[] {
+		const items: CompletionItem[] = [];
+
+		const push = (map: Map<string, ScopeItemCapability[]> | undefined, kind: CompletionItemKind) => {
+			map?.forEach(scopes => scopes.forEach(scope => {
+				if (scope.isPublicScope) {
+					items.push({ label: scope.identifier, kind });
+				}
+			}));
+		};
+
+		push(this.modules, CompletionItemKind.Module);
+		push(this.functions, CompletionItemKind.Function);
+		push(this.subroutines, CompletionItemKind.Function);
+		push(this.properties?.getters, CompletionItemKind.Property);
+		push(this.types, CompletionItemKind.Class);
+
+		// De-duplicate by label (e.g. Property Get/Let/Set share a name)
+		const seen = new Set<string>();
+		return items.filter(item => {
+			if (seen.has(item.label as string)) return false;
+			seen.add(item.label as string);
+			return true;
+		});
+	}
+
+	/**
+	 * Returns all names accessible from the module identified by `uri`.
+	 * Used for ambient/in-scope completion (no member-access prefix).
+	 */
+	getAllAccessibleNames(uri: string): CompletionItem[] {
+		const module = this.findModuleByUri(uri);
+		const items: CompletionItem[] = [];
+
+		const push = (map: Map<string, ScopeItemCapability[]> | undefined, kind: CompletionItemKind) => {
+			map?.forEach(scopes => scopes.forEach(scope => {
+				items.push({ label: scope.identifier, kind });
+			}));
+		};
+
+		// Collect from the module itself (private + public)
+		if (module) {
+			push(module.functions, CompletionItemKind.Function);
+			push(module.subroutines, CompletionItemKind.Function);
+			push(module.properties?.getters, CompletionItemKind.Property);
+			push(module.types, CompletionItemKind.Class);
+			push(module.parameters, CompletionItemKind.Variable);
+		}
+
+		// Collect public names from the entire scope chain (project, application, language)
+		const walkScope = (scope: ScopeItemCapability | undefined) => {
+			if (!scope) return;
+			push(scope.modules, CompletionItemKind.Module);
+			push(scope.implicitDeclarations, CompletionItemKind.Function);
+			walkScope(scope.parent);
+		};
+		walkScope(module?.parent);
+
+		// De-duplicate
+		const seen = new Set<string>();
+		return items.filter(item => {
+			if (seen.has(item.label as string)) return false;
+			seen.add(item.label as string);
+			return true;
+		});
 	}
 
 	getDeclarationLocation(uri: string, position: Position): LocationLink[] | undefined {

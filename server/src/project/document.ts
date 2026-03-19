@@ -89,18 +89,18 @@ export abstract class BaseProjectDocument {
 		};
 	}
 
-	constructor(name: string, document: TextDocument) {
+	constructor(name: string, document: TextDocument, initialScope?: ScopeItemCapability) {
 		this.textDocument = document;
 		this.workspace = Services.workspace;
 		this.version = document.version;
 		this.name = name;
-		this.currentScope = Services.projectScope;
+		this.currentScope = initialScope ?? Services.projectScope;
 	}
 
-	static create(document: TextDocument): BaseProjectDocument {
+	static create(document: TextDocument, initialScope?: ScopeItemCapability): BaseProjectDocument {
 		const slashParts = document.uri.split('/').at(-1);
 		const dotParts = slashParts?.split('.');
-		const extension = dotParts?.at(-1);
+		const extension = dotParts?.at(-1)?.toLowerCase();
 		const filename = dotParts?.join('.');
 
 		if (!filename || !extension) {
@@ -109,13 +109,13 @@ export abstract class BaseProjectDocument {
 
 		switch (extension) {
 			case 'cls':
-				return new VbaClassDocument(filename, document, SymbolKind.Class);
+				return new VbaClassDocument(filename, document, SymbolKind.Class, initialScope);
 			case 'bas':
-				return new VbaModuleDocument(filename, document, SymbolKind.Class);
 			case 'frm':
-				return new VbaModuleDocument(filename, document, SymbolKind.Class);
+			case 'vbatype':
+				return new VbaModuleDocument(filename, document, SymbolKind.Class, initialScope);
 			default:
-				throw new Error("Expected *.cls, *.bas, or *.frm but got *." + extension);
+				throw new Error("Expected *.cls, *.bas, *.frm, or *.vbatype but got *." + extension);
 		}
 	}
 
@@ -327,8 +327,8 @@ export abstract class BaseProjectDocument {
 
 export class VbaClassDocument extends BaseProjectDocument {
 	symbolKind: SymbolKind;
-	constructor(name: string, document: TextDocument, symbolKind: SymbolKind) {
-		super(name, document);
+	constructor(name: string, document: TextDocument, symbolKind: SymbolKind, initialScope?: ScopeItemCapability) {
+		super(name, document, initialScope);
 		this.symbolKind = symbolKind;
 	}
 }
@@ -336,8 +336,8 @@ export class VbaClassDocument extends BaseProjectDocument {
 
 export class VbaModuleDocument extends BaseProjectDocument {
 	symbolKind: SymbolKind;
-	constructor(name: string, document: TextDocument, symbolKind: SymbolKind) {
-		super(name, document);
+	constructor(name: string, document: TextDocument, symbolKind: SymbolKind, initialScope?: ScopeItemCapability) {
+		super(name, document, initialScope);
 		this.symbolKind = symbolKind;
 	}
 }

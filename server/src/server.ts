@@ -86,7 +86,7 @@ export class LanguageServerConfiguration {
 
 		// Implement soon.
 		hoverProvider: false,
-		completionProvider: undefined,
+		completionProvider: { triggerCharacters: ['.'] },
 
 		// Not implemented.		
 		signatureHelpProvider: undefined,

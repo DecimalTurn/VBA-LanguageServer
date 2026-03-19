@@ -20,6 +20,10 @@ export class Services {
 		container.registerInstance("ProjectScope", scope);
 	}
 
+	static registerApplicationScope(scope: ScopeItemCapability): void {
+		container.registerInstance("ApplicationScope", scope);
+	}
+
 	static registerServer(server: ILanguageServer): void {
 		container.registerInstance("ILanguageServer", server);
 	}
@@ -46,6 +50,10 @@ export class Services {
 
 	static get projectScope(): ScopeItemCapability {
 		return container.resolve("ProjectScope");
+	}
+
+	static get applicationScope(): ScopeItemCapability {
+		return container.resolve("ApplicationScope");
 	}
 
 	static get workspace(): IWorkspace {
